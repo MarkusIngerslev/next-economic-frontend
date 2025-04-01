@@ -37,4 +37,12 @@ export const authService = {
       body: JSON.stringify({ email, password, name }),
     });
   },
+
+  /**
+   * Udfører logout ved at fjerne JWT token fra localStorage
+   */
+  logout: () => {
+    localStorage.removeItem("jwt-token"); // Adjust the key name if you're using a different one
+    window.location.href = "/login"; // Redirect to login page
+  },
 };
