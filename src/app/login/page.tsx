@@ -2,33 +2,32 @@
 
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { authService } from "@/services/api";
 
 export default function LoginPage() {
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
 
     try {
-      const response = await fetch("http://localhost:5050/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await authService.login(email, password);
 
-      if (!response.ok) {
+      if (!response) {
         throw new Error("Login fejlede");
       }
 
-      const token = await response.text(); // NestJS returnerer token som plain text
-      login(token);
+      login(response);
     } catch (err: any) {
-      setError(err.message || "Noget gik galt");
+      setError(err.message || "Noget gik galt under login");
+    } finally {
+      setLoading(false);
     }
   };
 
