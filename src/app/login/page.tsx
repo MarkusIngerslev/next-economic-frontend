@@ -11,7 +11,7 @@ const LoginForm = dynamic(
 
 export default function LoginPage() {
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50">
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-white px-4">
       <LoginForm />
     </main>
   );
