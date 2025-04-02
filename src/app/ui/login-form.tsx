@@ -33,7 +33,7 @@ export function LoginForm() {
   return (
     <motion.form
       onSubmit={handleSubmit}
-      className="bg-white p-10 rounded-2xl shadow-lg w-full max-w-sm border"
+      className="bg-gradient-to-tl from-gray-100 to-white p-10 rounded-2xl shadow-lg w-full max-w-sm border"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}

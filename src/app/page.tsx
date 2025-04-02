@@ -5,8 +5,8 @@ import { motion } from "framer-motion";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center px-4">
-      <div className="max-w-2xl w-full flex flex-col items-center text-center bg-white shadow-xl rounded-2xl p-8 border">
+    <main className="min-h-screen bg-gradient-to-br from-blue-600 to-violet-400 flex items-center justify-center px-4">
+      <div className="max-w-2xl w-full flex flex-col items-center text-center bg-gradient-to-tl from-gray-100 to-white shadow-xl rounded-2xl p-8 border">
         {/* SVG Illustration */}
         <div className="w-full mb-6">
           <img
