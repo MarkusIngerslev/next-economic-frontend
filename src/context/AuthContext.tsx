@@ -20,20 +20,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
+    const storedToken = localStorage.getItem("jwt-token");
     if (storedToken) {
       setToken(storedToken);
     }
   }, []);
 
   const login = (newToken: string) => {
-    localStorage.setItem("token", newToken);
+    localStorage.setItem("jwt-token", newToken);
     setToken(newToken);
     router.push("/dashboard");
   };
 
   const logout = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("jwt-token");
     setToken(null);
     router.push("/login");
   };
