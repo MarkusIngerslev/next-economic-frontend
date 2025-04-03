@@ -5,6 +5,7 @@ import {
   TagIcon,
   DocumentDuplicateIcon,
   CreditCardIcon,
+  UserCircleIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -17,6 +18,11 @@ const links = [
     name: "Dashboard",
     href: "/dashboard",
     icon: HomeIcon,
+  },
+  {
+    name: "Profile",
+    href: "/dashboard/profile",
+    icon: UserCircleIcon,
   },
   {
     name: "Budget",
