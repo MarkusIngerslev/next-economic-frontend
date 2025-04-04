@@ -8,10 +8,12 @@ const AuthContext = createContext<AuthContextType>({
   token: null,
   login: () => {},
   logout: () => {},
+  isAuthReady: false,
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
+  const [isAuthReady, setIsAuthReady] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -19,6 +21,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     if (storedToken) {
       setToken(storedToken);
     }
+    setIsAuthReady(true);
   }, []);
 
   const login = (newToken: string) => {
@@ -34,7 +37,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ token, login, logout }}>
+    <AuthContext.Provider value={{ token, login, logout, isAuthReady }}>
       {children}
     </AuthContext.Provider>
   );
