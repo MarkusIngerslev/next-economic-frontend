@@ -4,30 +4,6 @@ import React from "react";
 import { getUserProfile, UserProfile } from "@/services/api/user";
 import { ProfileSkeleton } from "@/app/ui/skeleton";
 
-// Debugging komponent
-function TokenDebugger() {
-  const [token, setToken] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    setToken(localStorage.getItem("jwt-token"));
-  }, []);
-
-  return (
-    <div className="mt-4 p-4 bg-gray-100 rounded border border-red-500">
-      <h3 className="font-bold mb-2">Debugging Info:</h3>
-      <p>JWT Token exists: {token ? "Yes" : "No"}</p>
-      {token && (
-        <div>
-          <p className="mt-2 font-medium">Token value (first 20 chars):</p>
-          <p className="font-mono text-sm bg-gray-200 p-1 rounded">
-            {token.substring(0, 20)}...
-          </p>
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function ProfileContent() {
   const [userData, setUserData] = React.useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -52,8 +28,6 @@ export default function ProfileContent() {
   // Tilføj debugger over indholdet
   return (
     <div>
-      <TokenDebugger />
-
       {isLoading ? (
         <ProfileSkeleton />
       ) : error ? (
