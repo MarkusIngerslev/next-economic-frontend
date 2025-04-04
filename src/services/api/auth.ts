@@ -1,12 +1,5 @@
 import { apiClient } from "./base";
-
-/**
- * Interface til login anmodning
- */
-interface LoginRequest {
-  email: string;
-  password: string;
-}
+import { LoginRequest, LoginResponse } from "@/types";
 
 /**
  * Auth service til håndtering af authentication-relaterede API kald
@@ -18,10 +11,14 @@ export const authService = {
    */
   login: async (email: string, password: string): Promise<string> => {
     const data: LoginRequest = { email, password };
-    return apiClient.request<string>("/auth/login", {
+    const response = await apiClient.request<LoginResponse>("/auth/login", {
       method: "POST",
       body: JSON.stringify(data),
     });
+
+    console.log(response.access_token);
+
+    return response.access_token;
   },
 
   /**
