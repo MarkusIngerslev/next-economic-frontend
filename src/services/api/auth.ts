@@ -16,8 +16,6 @@ export const authService = {
       body: JSON.stringify(data),
     });
 
-    console.log(response.access_token);
-
     return response.access_token;
   },
 
