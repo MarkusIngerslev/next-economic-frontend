@@ -1,15 +1,15 @@
 "use client";
 
-import React from "react";
+import { useEffect, useState } from "react";
 import { getUserProfile, UserProfile } from "@/services/api/user";
 import { ProfileSkeleton } from "@/app/ui/skeleton";
 
-export default function ProfileContent() {
-  const [userData, setUserData] = React.useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
+export default function ProfileCard() {
+  const [userData, setUserData] = useState<UserProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     async function fetchUserData() {
       try {
         const data = await getUserProfile();
@@ -41,14 +41,21 @@ export default function ProfileContent() {
             <div className="w-20 h-20 rounded-full bg-blue-300 mr-4"></div>
             <div>
               <h2 className="text-xl font-semibold">User</h2>
-              <p className="text-gray-600">{userData.email}</p>
+              <p className="text-gray-600">
+                {userData.firstName} {userData.lastName}
+              </p>
             </div>
           </div>
           <div className="grid gap-4">
             <div className="border-b pb-4">
-              <h3 className="font-medium mb-2">Person Information</h3>
-              <p className="text-gray-600">Location: Copenhagen, Denmark</p>
+              <h3 className="font-medium mb-2 font-semibold">
+                Person Information
+              </h3>
+              <p className="text-gray-600 font-medium">
+                Location: Copenhagen, Denmark
+              </p>
               <p className="text-gray-600">Birthday: January 2023</p>
+              <p className="text-gray-600">Email: {userData.email}</p>
               <p className="text-gray-600">
                 Roles: {userData.roles.join(", ")}
               </p>
