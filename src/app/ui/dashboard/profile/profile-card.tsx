@@ -9,6 +9,30 @@ export default function ProfileCard() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Udregn birthday fra fødselsdato
+  function calculateAge(birthDate: string): number {
+    const birth = new Date(birthDate);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birth.getDate())
+    ) {
+      age--;
+    }
+    return age;
+  }
+
+  // Omdanner fødselsdato til dd-mm-yyyy format
+  function formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  }
+
   useEffect(() => {
     async function fetchUserData() {
       try {
@@ -38,7 +62,11 @@ export default function ProfileCard() {
         <div className="bg-slate-300 shadow rounded-lg p-6 mt-4">
           {/* Resten af dit indhold... */}
           <div className="flex items-center mb-6">
-            <div className="w-20 h-20 rounded-full bg-blue-300 mr-4"></div>
+            <img
+              src={userData.profilePictureUrl || "/default-profile.png"}
+              alt="Profile"
+              className="w-20 h-20 rounded-full mr-4 object-cover"
+            />
             <div>
               <h2 className="text-xl font-semibold">User</h2>
               <p className="text-gray-600">
@@ -47,21 +75,58 @@ export default function ProfileCard() {
             </div>
           </div>
           <div className="grid gap-4">
-            <div className="border-b pb-4">
-              <h3 className="font-medium mb-2 font-semibold">
+            <div className="border-b-3 pb-4">
+              <h3 className="font-medium mb-2 px-2 font-semibold">
                 Person Information
               </h3>
-              <p className="text-gray-600 font-medium">
-                Location: Copenhagen, Denmark
-              </p>
-              <p className="text-gray-600">Birthday: January 2023</p>
-              <p className="text-gray-600">Email: {userData.email}</p>
-              <p className="text-gray-600">
-                Roles: {userData.roles.join(", ")}
-              </p>
+              <div className="mb-4 px-4">
+                <p className="text-gray-600">
+                  Age: {calculateAge(userData.birthDate || "N/A")}
+                </p>
+                <p className="text-gray-600">
+                  Birthday : {formatDate(userData.birthDate || "N/A")}
+                </p>
+
+                <fieldset className="border-y-1 px-2 pb-2 mt-2">
+                  <legend className="font-semibold">Address</legend>
+                  <p className="text-gray-600">
+                    Address: {userData.address || "N/A"}
+                  </p>
+                  <p className="text-gray-600">
+                    City: {userData.city || "N/A"}
+                  </p>
+                  <p className="text-gray-600">
+                    Postal Code: {userData.postalCode || "N/A"}
+                  </p>
+                  <p className="text-gray-600">
+                    Country: {userData.country || "N/A"}
+                  </p>
+                </fieldset>
+              </div>
+
+              <h3 className="font-medium mb-2 px-2 font-semibold">
+                Contact Information
+              </h3>
+              <div className="mb-4 px-4">
+                <p className="text-gray-600">
+                  Email: {userData.email || "N/A"}
+                </p>
+                <p className="text-gray-600">
+                  Phone: {userData.phone || "N/A"}
+                </p>
+              </div>
+
+              <h3 className="font-medium mb-2 px-2 font-semibold">
+                Relevant Information
+              </h3>
+              <div className="mb-4 px-4">
+                <p className="text-gray-600">
+                  Roles: {userData.roles.join(", ") || "N/A"}
+                </p>
+              </div>
             </div>
             <div>
-              <h3 className="font-medium mb-2">Account Settings</h3>
+              <h3 className="font-semibold mb-2">Account Settings</h3>
               <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
                 Edit Profile
               </button>
