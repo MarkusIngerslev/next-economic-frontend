@@ -2,10 +2,17 @@ import { apiClient } from "./base";
 
 export interface UserProfile {
   id: string;
-  email: string;
-  roles: string[];
   firstName: string;
   lastName: string;
+  email: string;
+  roles: string[];
+  phone?: string;
+  address?: string;
+  city?: string;
+  postalCode?: string;
+  country?: string;
+  profilePictureUrl?: string; // URL til profilbillede
+  birthDate?: string; // ISO 8601 format (f.eks. "1990-01-01")
 }
 
 /**
