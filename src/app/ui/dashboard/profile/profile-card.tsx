@@ -4,11 +4,14 @@ import { useEffect, useState } from "react";
 import { getUserProfile, UserProfile } from "@/services/api/user";
 import { ProfileSkeleton } from "@/app/ui/skeleton";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
+import EditProfileModal from "./edit-profile-modal";
+import { AnimatePresence } from "framer-motion";
 
 export default function ProfileCard() {
   const [userData, setUserData] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Udregn birthday fra fødselsdato
   function calculateAge(birthDate: string): number {
@@ -31,7 +34,7 @@ export default function ProfileCard() {
     const day = String(date.getDate()).padStart(2, "0");
     const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based
     const year = date.getFullYear();
-    return `${day}-${month}-${year}`;
+    return `${day}.${month}.${year}`;
   }
 
   useEffect(() => {
@@ -50,9 +53,26 @@ export default function ProfileCard() {
     fetchUserData();
   }, []);
 
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleSaveChanges = (updatedData: Partial<UserProfile>) => {
+    // Her skal du implementere logikken til at gemme de opdaterede data
+    // Dette involverer typisk et API kald
+    console.log("Saving changes:", updatedData);
+    // Opdater evt. lokal state hvis API kaldet lykkes
+    // setUserData(prevData => ({ ...prevData, ...updatedData }));
+    // Luk modalen er håndteret i selve modal komponenten
+  };
+
   // Tilføj debugger over indholdet
   return (
-    <div>
+    <div className="relative">
       {isLoading ? (
         <ProfileSkeleton />
       ) : error ? (
@@ -60,7 +80,11 @@ export default function ProfileCard() {
       ) : !userData ? (
         <div>No user data available</div>
       ) : (
-        <div className="bg-slate-300 shadow rounded-lg p-6 mt-4">
+        <div
+          className={`bg-slate-300 shadow rounded-lg p-6 mt-4 ${
+            isModalOpen ? "blur-xs" : ""
+          }`}
+        >
           {/* Resten af dit indhold... */}
           <div className="flex items-center mb-6">
             {userData.profilePictureUrl ? (
@@ -132,13 +156,29 @@ export default function ProfileCard() {
             </div>
             <div>
               <h3 className="font-semibold mb-2">Account Settings</h3>
-              <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+              <button
+                onClick={handleOpenModal} // Tilføj onClick handler
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              >
                 Edit Profile
               </button>
             </div>
           </div>
         </div>
       )}
+      {/* Wrap modalen med AnimatePresence */}
+      <AnimatePresence>
+        {isModalOpen && ( // Render kun modalen når den er åben
+          <EditProfileModal
+            // key prop kan være nyttig for AnimatePresence, men ikke strengt nødvendig her
+            // key="edit-profile-modal"
+            isOpen={isModalOpen} // isOpen prop er teknisk set ikke nødvendig for AnimatePresence, men god at beholde
+            onClose={handleCloseModal}
+            userData={userData}
+            onSave={handleSaveChanges}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
