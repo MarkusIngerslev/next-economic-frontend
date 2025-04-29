@@ -6,13 +6,13 @@ export interface UserProfile {
   lastName: string;
   email: string;
   roles: string[];
-  phone?: number;
+  phone?: number | string;
   address?: string;
   city?: string;
   postalCode?: string;
   country?: string;
-  profilePictureUrl?: string; // URL til profilbillede
-  birthDate?: string; // ISO 8601 format (f.eks. "1990-01-01")
+  profilePictureUrl?: string;
+  birthDate?: string;
 }
 
 /**
@@ -27,6 +27,32 @@ export async function getUserProfile(): Promise<UserProfile> {
     });
   } catch (error) {
     console.error("Error fetching user profile:", error);
+    throw error;
+  }
+}
+
+/**
+ * Opdaterer brugerens profildata på backend
+ * @param updatedData Et objekt indeholdende de felter, der skal opdateres
+ * @returns Den opdaterede UserProfile fra backend (selvom backend pt. returnerer noget andet)
+ */
+export async function updateUserProfile(
+  updatedData: Partial<UserProfile>
+): Promise<UserProfile> {
+  // Beholder UserProfile her for nu
+  try {
+    // Send updatedData direkte som payload
+    return await apiClient.request<UserProfile>("/users/update-profile", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      // Send updatedData direkte
+      body: JSON.stringify(updatedData),
+      credentials: "include",
+    });
+  } catch (error) {
+    console.error("Error updating user profile:", error);
     throw error;
   }
 }
