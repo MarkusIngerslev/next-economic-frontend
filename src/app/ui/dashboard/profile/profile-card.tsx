@@ -106,14 +106,14 @@ export default function ProfileCard() {
           <div className="grid gap-4">
             <div className="border-b-3 pb-4">
               <h3 className="font-medium mb-2 px-2 font-semibold">
-                Person Information
+                Personlig Information
               </h3>
               <div className="mb-4 px-4">
                 <p className="text-gray-600">
-                  Age: {calculateAge(userData.birthDate || "N/A")}
+                  Alder: {calculateAge(userData.birthDate || "N/A")}
                 </p>
                 <p className="text-gray-600">
-                  Birthday : {formatDate(userData.birthDate || "N/A")}
+                  Fødselsdag : {formatDate(userData.birthDate || "N/A")}
                 </p>
 
                 <fieldset className="border-y-1 px-2 pb-2 mt-2">
@@ -121,46 +121,43 @@ export default function ProfileCard() {
                   <p className="text-gray-600">
                     Address: {userData.address || "N/A"}
                   </p>
+                  <p className="text-gray-600">By: {userData.city || "N/A"}</p>
                   <p className="text-gray-600">
-                    City: {userData.city || "N/A"}
+                    Post nummer: {userData.postalCode || "N/A"}
                   </p>
                   <p className="text-gray-600">
-                    Postal Code: {userData.postalCode || "N/A"}
-                  </p>
-                  <p className="text-gray-600">
-                    Country: {userData.country || "N/A"}
+                    Land: {userData.country || "N/A"}
                   </p>
                 </fieldset>
               </div>
 
               <h3 className="font-medium mb-2 px-2 font-semibold">
-                Contact Information
+                Kontakt Information
               </h3>
               <div className="mb-4 px-4">
                 <p className="text-gray-600">
                   Email: {userData.email || "N/A"}
                 </p>
                 <p className="text-gray-600">
-                  Phone: {userData.phone || "N/A"}
+                  Telefonnummer: {userData.phone || "N/A"}
                 </p>
               </div>
 
               <h3 className="font-medium mb-2 px-2 font-semibold">
                 Relevant Information
               </h3>
-              <div className="mb-4 px-4">
+              <div className=" px-4">
                 <p className="text-gray-600">
-                  Roles: {userData.roles.join(", ") || "N/A"}
+                  Roller: {userData.roles.join(", ") || "N/A"}
                 </p>
               </div>
             </div>
             <div>
-              <h3 className="font-semibold mb-2">Account Settings</h3>
               <button
                 onClick={handleOpenModal} // Tilføj onClick handler
                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
               >
-                Edit Profile
+                Ændre profile oplysninger
               </button>
             </div>
           </div>
