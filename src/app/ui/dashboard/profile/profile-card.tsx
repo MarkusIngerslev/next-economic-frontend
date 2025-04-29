@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getUserProfile, UserProfile } from "@/services/api/user";
+import {
+  getUserProfile,
+  updateUserProfile,
+  UserProfile,
+} from "@/services/api/user";
 import { ProfileSkeleton } from "@/app/ui/skeleton";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
 import EditProfileModal from "./edit-profile-modal";
@@ -12,48 +16,71 @@ export default function ProfileCard() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false); // State for at vise loading under save
+  const [saveError, setSaveError] = useState<string | null>(null); // State for fejl under save
 
-  // Udregn birthday fra fødselsdato
-  function calculateAge(birthDate: string): number {
-    const birth = new Date(birthDate);
-    const today = new Date();
-    let age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
-    if (
-      monthDiff < 0 ||
-      (monthDiff === 0 && today.getDate() < birth.getDate())
-    ) {
-      age--;
+  // Funktion til at hente brugerdata (genbruges)
+  const fetchUserData = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await getUserProfile();
+      setUserData(data);
+    } catch (err) {
+      console.error("Failed to fetch user profile:", err);
+      setError("Could not load profile data. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
-    return age;
-  }
+  };
 
-  // Omdanner fødselsdato til dd-mm-yyyy format
-  function formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based
-    const year = date.getFullYear();
-    return `${day}.${month}.${year}`;
-  }
-
-  useEffect(() => {
-    async function fetchUserData() {
-      try {
-        const data = await getUserProfile();
-        setUserData(data);
-      } catch (err) {
-        console.error("Failed to fetch user profile:", err);
-        setError("Could not load profile data");
-      } finally {
-        setIsLoading(false);
+  // Udregn alder
+  function calculateAge(birthDate: string): number | string {
+    if (!birthDate || birthDate === "N/A") return "N/A";
+    try {
+      const birth = new Date(birthDate);
+      const today = new Date();
+      let age = today.getFullYear() - birth.getFullYear();
+      const monthDiff = today.getMonth() - birth.getMonth();
+      if (
+        monthDiff < 0 ||
+        (monthDiff === 0 && today.getDate() < birth.getDate())
+      ) {
+        age--;
       }
+      return age >= 0 ? age : "N/A"; // Sørg for at alder ikke er negativ
+    } catch (e) {
+      console.error("Error calculating age:", e);
+      return "N/A";
     }
+  }
 
+  // Formater dato
+  function formatDate(dateString: string): string {
+    if (!dateString || dateString === "N/A") return "N/A";
+    try {
+      const date = new Date(dateString);
+      // Check om datoen er valid
+      if (isNaN(date.getTime())) {
+        return "N/A";
+      }
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const year = date.getFullYear();
+      return `${day}.${month}.${year}`;
+    } catch (e) {
+      console.error("Error formatting date:", e);
+      return "N/A";
+    }
+  }
+
+  // Hent data ved mount
+  useEffect(() => {
     fetchUserData();
   }, []);
 
   const handleOpenModal = () => {
+    setSaveError(null);
     setIsModalOpen(true);
   };
 
@@ -61,31 +88,51 @@ export default function ProfileCard() {
     setIsModalOpen(false);
   };
 
-  const handleSaveChanges = (updatedData: Partial<UserProfile>) => {
-    // Her skal du implementere logikken til at gemme de opdaterede data
-    // Dette involverer typisk et API kald
-    console.log("Saving changes:", updatedData);
-    // Opdater evt. lokal state hvis API kaldet lykkes
-    // setUserData(prevData => ({ ...prevData, ...updatedData }));
-    // Luk modalen er håndteret i selve modal komponenten
+  // Opdateret handleSaveChanges
+  const handleSaveChanges = async (updatedData: Partial<UserProfile>) => {
+    if (!userData) return;
+
+    setIsSaving(true);
+    setSaveError(null);
+    // console.log("Attempting to save changes:", updatedData);
+
+    try {
+      // 1. Kald PATCH for at opdatere data
+      await updateUserProfile(updatedData);
+      console.log("Profile update request successful.");
+
+      // 2. Kald GET for at hente den fulde, opdaterede profil
+      console.log("Re-fetching updated profile data...");
+      await fetchUserData(); // Genbrug fetchUserData til at opdatere state
+
+      handleCloseModal(); // Luk modalen ved succes
+    } catch (err) {
+      console.error("Failed to save or re-fetch profile changes:", err);
+      // Sæt en generel fejlbesked, da fejlen kan komme fra PATCH eller GET
+      setSaveError("Failed to save changes. Please try again.");
+    } finally {
+      setIsSaving(false); // Sørg for at isSaving altid sættes til false
+    }
   };
 
   // Tilføj debugger over indholdet
   return (
     <div className="relative">
-      {isLoading ? (
+      {isLoading && !isSaving ? ( // Vis kun initial loading skeleton hvis vi ikke er ved at gemme
         <ProfileSkeleton />
       ) : error ? (
-        <div className="text-red-500">{error}</div>
+        <div className="text-red-500 p-4 bg-red-100 border border-red-400 rounded">
+          {error}
+        </div>
       ) : !userData ? (
-        <div>No user data available</div>
+        <div className="p-4 text-gray-600">No user data available.</div>
       ) : (
         <div
-          className={`bg-slate-300 shadow rounded-lg p-6 mt-4 ${
-            isModalOpen ? "blur-xs" : ""
-          }`}
+          className={`bg-slate-300 shadow rounded-lg p-6 mt-4 transition-filter duration-300 ${
+            isModalOpen ? "blur-sm" : ""
+          } ${isSaving ? "opacity-75" : ""}`} // Gør kortet lidt gennemsigtigt under save
         >
-          {/* Resten af dit indhold... */}
+          {/* ... Profile display code ... */}
           <div className="flex items-center mb-6">
             {userData.profilePictureUrl ? (
               <img
@@ -148,28 +195,29 @@ export default function ProfileCard() {
               </h3>
               <div className=" px-4">
                 <p className="text-gray-600">
-                  Roller: {userData.roles.join(", ") || "N/A"}
+                  Roller: {userData.roles ? userData.roles.join(", ") : "N/A"}
                 </p>
               </div>
             </div>
             <div>
               <button
-                onClick={handleOpenModal} // Tilføj onClick handler
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                onClick={handleOpenModal}
+                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
+                disabled={isSaving || isLoading} // Deaktiver også hvis data hentes
               >
-                Ændre profile oplysninger
+                {isSaving ? "Gemmer..." : "Ændre profile oplysninger"}
               </button>
+              {saveError && (
+                <p className="text-red-500 text-sm mt-2">{saveError}</p>
+              )}
             </div>
           </div>
         </div>
       )}
-      {/* Wrap modalen med AnimatePresence */}
       <AnimatePresence>
-        {isModalOpen && ( // Render kun modalen når den er åben
+        {isModalOpen && (
           <EditProfileModal
-            // key prop kan være nyttig for AnimatePresence, men ikke strengt nødvendig her
-            // key="edit-profile-modal"
-            isOpen={isModalOpen} // isOpen prop er teknisk set ikke nødvendig for AnimatePresence, men god at beholde
+            isOpen={isModalOpen}
             onClose={handleCloseModal}
             userData={userData}
             onSave={handleSaveChanges}
