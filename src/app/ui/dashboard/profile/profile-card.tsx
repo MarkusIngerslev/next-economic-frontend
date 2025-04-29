@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getUserProfile, UserProfile } from "@/services/api/user";
 import { ProfileSkeleton } from "@/app/ui/skeleton";
+import { UserCircleIcon } from "@heroicons/react/24/outline";
 
 export default function ProfileCard() {
   const [userData, setUserData] = useState<UserProfile | null>(null);
@@ -62,11 +63,15 @@ export default function ProfileCard() {
         <div className="bg-slate-300 shadow rounded-lg p-6 mt-4">
           {/* Resten af dit indhold... */}
           <div className="flex items-center mb-6">
-            <img
-              src={userData.profilePictureUrl || "/default-profile.png"}
-              alt="Profile"
-              className="w-20 h-20 rounded-full mr-4 object-cover"
-            />
+            {userData.profilePictureUrl ? (
+              <img
+                src={userData.profilePictureUrl}
+                alt="Profile"
+                className="w-20 h-20 rounded-full mr-4 object-cover"
+              />
+            ) : (
+              <UserCircleIcon className="w-20 h-20 text-gray-500 mr-4" />
+            )}
             <div>
               <h2 className="text-xl font-semibold">User</h2>
               <p className="text-gray-600">
