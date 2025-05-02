@@ -3,6 +3,13 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Direkte definition af custom farver */
+  --custom-teal: #476a6f;
+  --custom-navy: #151e3f;
+  --custom-light: #e2e2e2;
+  --custom-purple: #9a7aa0;
+  --custom-red: #fb3640;
 }
 
 @theme inline {
