@@ -37,7 +37,7 @@ export default function Page() {
   const currentMonth = currentDate.getMonth();
   const currentYear = currentDate.getFullYear();
 
-  // Funktion til at hente data (kan genbruges hvis du vil have en refresh knap f.eks.)
+  // Funktion til at hente data fra backend
   const fetchIncomeData = async () => {
     setFetchError(null); // Nulstil fejl
     try {
@@ -46,13 +46,12 @@ export default function Page() {
     } catch (error) {
       console.error("Failed to fetch income data:", error);
       setFetchError("Kunne ikke hente indkomstdata. Prøv igen senere.");
-      setIncomeData([]); // Sørg for at data er tom ved fejl
+      setIncomeData([]);
     } finally {
-      setIsLoading(false); // Stop loading uanset resultat
+      setIsLoading(false); // Stop global loading
     }
   };
 
-  // useEffect hook til at hente data når komponenten mounter
   useEffect(() => {
     setIsLoading(true); // Sæt global loading ved mount
     fetchIncomeData();
@@ -79,18 +78,12 @@ export default function Page() {
 
   const handleSaveIncomeRecord = async (
     id: string,
-    updatedData: Partial<Omit<IncomeRecord, "id" | "category">> & {
-      categoryId?: string;
-    }
+    updatedData: IncomeUpdatePayload // Brug IncomeUpdatePayload her
   ) => {
     setSaveError(null);
     try {
       const updatedRecordFromApi = await updateIncomeRecord(id, updatedData);
 
-      // Opdater state lokalt for øjeblikkelig UI opdatering
-      // Sørg for at den opdaterede record fra API'en har alle nødvendige felter,
-      // især hvis `categoryId` blev brugt til at ændre kategorien.
-      // Backend bør returnere den fulde, opdaterede record.
       setIncomeData((prevData) =>
         prevData.map((record) =>
           record.id === id ? { ...record, ...updatedRecordFromApi } : record
@@ -102,18 +95,18 @@ export default function Page() {
       const errorMessage =
         error instanceof Error ? error.message : "Ukendt fejl ved gem.";
       setSaveError(`Kunne ikke gemme ændringer: ${errorMessage}`);
-      throw error; // Kast fejlen videre så EditIncomeModal kan fange den og vise fejl internt
+      throw error;
     }
   };
 
   const handleDataUpdate = () => {
-    // Simpel løsning: Hent al data igen
     fetchIncomeData();
-    // Mere avanceret: Opdater kun den specifikke række i state lokalt
-    // uden at skulle hente alt igen, hvis backend returnerer den opdaterede række.
   };
 
-  // Vis loading indikator mens data hentes
+  // #########################################
+  // ## Vis loading indikator og fejlbesked ##
+  // #########################################
+
   if (isLoading) {
     return (
       <main className="container mx-auto p-8 text-center">
@@ -122,6 +115,10 @@ export default function Page() {
       </main>
     );
   }
+
+  // ############################################
+  // ## Beregn data til grafer og summaryCards ##
+  // ############################################
 
   const incomeThisYear = calculateIncomeThisYear(incomeData, currentYear);
   const incomeThisMonth = calculateIncomeThisMonth(
@@ -134,6 +131,7 @@ export default function Page() {
     currentMonth
   );
 
+  // Forbear data til cirkeldiagram
   const incomePieChartData = incomeData
     .filter(
       (record) =>
@@ -147,6 +145,7 @@ export default function Page() {
       return acc;
     }, {} as Record<string, number>);
 
+  // Konverter til array for Recharts
   const formattedIncomePieData = Object.entries(incomePieChartData).map(
     ([name, value]) => ({ name, value })
   );
@@ -174,7 +173,12 @@ export default function Page() {
       return acc;
     }, {} as Record<string, { category: string; count: number; totalAmount: number }>);
 
+  // Konverter til array for Recharts
   const formattedBarChartData = Object.values(categoryAnalysisData);
+
+  // ###########################################
+  // ## Render UI med data og modal komponent ##
+  // ###########################################
 
   return (
     <main className="container mx-auto p-8 border relative">
@@ -235,10 +239,13 @@ export default function Page() {
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
+        {/* Cirkeldiagram */}
         <ReusablePieChart
           data={formattedIncomePieData}
           title="Indkomstfordeling (I år)"
         />
+
+        {/* Søjlediagram */}
         <ReusableBarChart
           data={formattedBarChartData}
           title="Kategorianalyse: Antal & Beløb (I år)"
