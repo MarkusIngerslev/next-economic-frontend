@@ -1,24 +1,12 @@
 "use client";
 
 import { formatCurrency, formatDateToLocal } from "@/app/lib/utils";
-
-// Define the structure of the data object
-interface TransactionData {
-  id: string;
-  amount: string;
-  category: {
-    id: string;
-    name: string;
-    type: "income" | "expense";
-  };
-  description: string;
-  date: string;
-}
+import { IncomeRecord } from "@/services/api";
 
 // Define the props for the SummaryTable component
 interface SummaryTableProps {
-  data: TransactionData[];
-  title?: string; // Optional title for the table
+  data: IncomeRecord[];
+  title?: string;
 }
 
 export default function SummaryTable({
