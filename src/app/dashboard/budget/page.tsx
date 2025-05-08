@@ -10,11 +10,19 @@ import {
   calculateAverageMonthlyIncomeThisYear,
 } from "@/app/lib/budgetCalculations";
 
+import ReusablePieChart from "@/app/ui/dashboard/graphs/ReusablePieChart";
+import ReusableBarChart from "@/app/ui/dashboard/graphs/ReusableBarChart";
+
 export default function Page() {
   // State til at holde data, fejl og loading status
   const [incomeData, setIncomeData] = useState<IncomeRecord[]>([]);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true); // Start i loading state
+
+  // Definer currentDate, currentMonth og currentYear før de bruges
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth();
+  const currentYear = currentDate.getFullYear();
 
   // Funktion til at hente data (kan genbruges hvis du vil have en refresh knap f.eks.)
   const fetchIncomeData = async () => {
@@ -55,10 +63,6 @@ export default function Page() {
     );
   }
 
-  const currentDate = new Date();
-  const currentMonth = currentDate.getMonth();
-  const currentYear = currentDate.getFullYear();
-
   const incomeThisYear = calculateIncomeThisYear(incomeData, currentYear);
   const incomeThisMonth = calculateIncomeThisMonth(
     incomeData,
@@ -69,6 +73,48 @@ export default function Page() {
     incomeThisYear,
     currentMonth
   );
+
+  const incomePieChartData = incomeData
+    .filter(
+      (record) =>
+        new Date(record.date).getFullYear() === currentYear &&
+        record.category.type === "income"
+    )
+    .reduce((acc, record) => {
+      const categoryName = record.category.name;
+      const amount = parseFloat(record.amount);
+      acc[categoryName] = (acc[categoryName] || 0) + amount;
+      return acc;
+    }, {} as Record<string, number>);
+
+  const formattedIncomePieData = Object.entries(incomePieChartData).map(
+    ([name, value]) => ({ name, value })
+  );
+
+  // Forbered data til Bar Chart: Antal og Samlet Beløb pr. Kategori (for i år)
+  const categoryAnalysisData = incomeData
+    .filter(
+      (record) =>
+        new Date(record.date).getFullYear() === currentYear &&
+        record.category.type === "income"
+    )
+    .reduce((acc, record) => {
+      const categoryName = record.category.name;
+      const amount = parseFloat(record.amount);
+
+      if (!acc[categoryName]) {
+        acc[categoryName] = {
+          category: categoryName,
+          count: 0,
+          totalAmount: 0,
+        };
+      }
+      acc[categoryName].count += 1;
+      acc[categoryName].totalAmount += amount;
+      return acc;
+    }, {} as Record<string, { category: string; count: number; totalAmount: number }>);
+
+  const formattedBarChartData = Object.values(categoryAnalysisData);
 
   return (
     <main className="container mx-auto p-8 border">
@@ -125,11 +171,31 @@ export default function Page() {
       {/* SummaryTable skal muligvis også modtage funktioner til redigering/sletning som props senere */}
       <SummaryTable data={incomeData} title="Mine Indkomster" />
 
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="bg-white p-4 rounded shadow-md text-stone-600">
-          <h2 className="text-xl font-bold mb-2">Graph 2</h2>
-          <p>Graph content goes here.</p>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
+        <ReusablePieChart
+          data={formattedIncomePieData}
+          title="Indkomstfordeling (I år)"
+        />
+        <ReusableBarChart
+          data={formattedBarChartData}
+          title="Kategorianalyse: Antal & Beløb (I år)"
+          categoryKey="category" // Nøglen i data-objekterne, der indeholder kategorinavnet
+          bars={[
+            {
+              key: "count", // Nøglen for antal-værdien
+              name: "Antal Transaktioner",
+              color: "#8884d8",
+              yAxisId: "left",
+            },
+            {
+              key: "totalAmount", // Nøglen for beløb-værdien
+              name: "Samlet Beløb (kr)",
+              color: "#82ca9d",
+              yAxisId: "right",
+            },
+          ]}
+          yAxisLabels={{ left: "Antal", right: "Beløb (kr)" }}
+        />
       </div>
     </main>
   );
