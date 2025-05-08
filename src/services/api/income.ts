@@ -6,7 +6,7 @@ export interface IncomeRecord {
   category: {
     id: string;
     name: string;
-    type: "income";
+    type: "income" | "expense";
   };
   description: string;
   date: string;
