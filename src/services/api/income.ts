@@ -12,6 +12,14 @@ export interface IncomeRecord {
   date: string;
 }
 
+// Ny type for PATCH request payload
+export interface IncomeUpdatePayload {
+  amount?: number; // Forventes som tal af backend ved opdatering
+  description?: string;
+  date?: string; // Format YYYY-MM-DD
+  categoryId?: string;
+}
+
 /**
  * Henter alle brugerens income records fra backend
  * @returns Et array af IncomeRecord objekter
@@ -26,5 +34,36 @@ export async function getMyIncome(): Promise<IncomeRecord[]> {
   } catch (error) {
     console.error("Error fetching income records:", error);
     throw error; // Kaster fejlen videre så den kan håndteres i UI laget
+  }
+}
+
+/**
+ * Opdaterer en specifik income record i backend.
+ * @param id ID på den income record der skal opdateres.
+ * @param updatedData Et objekt med de felter der skal opdateres.
+ *                  'amount' skal være et tal.
+ *                  'date' forventes i 'YYYY-MM-DD' format.
+ * @returns Den opdaterede IncomeRecord (hvor amount igen er en string).
+ */
+export async function updateIncomeRecord(
+  id: string,
+  updatedData: IncomeUpdatePayload // Brug den nye payload type
+): Promise<IncomeRecord> {
+  try {
+    const payload = { ...updatedData };
+    // Ingen speciel håndtering af dato her, da den allerede forventes som YYYY-MM-DD string
+    // Amount sendes nu som et tal, hvis det er inkluderet i payload
+
+    return await apiClient.request<IncomeRecord>(`/income/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+  } catch (error) {
+    console.error(`Error updating income record with id ${id}:`, error);
+    throw error;
   }
 }
