@@ -20,8 +20,8 @@ export default function SummaryCard({
         className
       )}
     >
-      <h2 className="text-xl font-bold mb-2">{title}</h2>
-      <p>{content}</p>
+      <h2 className="text-lg font-medium mb-2">{title}</h2>
+      <p className="text-xl font-black">{content}</p>
     </div>
   );
 }
