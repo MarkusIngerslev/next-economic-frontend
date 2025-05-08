@@ -3,7 +3,12 @@
 import { useState, useEffect } from "react";
 import SummaryCard from "@/app/ui/dashboard/budget/summary-card";
 import SummaryTable from "@/app/ui/dashboard/budget/summary-table";
-import { getMyIncome, IncomeRecord } from "@/services/api";
+import {
+  getMyIncome,
+  IncomeRecord,
+  updateIncomeRecord,
+  IncomeUpdatePayload,
+} from "@/services/api";
 import {
   calculateIncomeThisYear,
   calculateIncomeThisMonth,
@@ -12,12 +17,20 @@ import {
 
 import ReusablePieChart from "@/app/ui/dashboard/graphs/ReusablePieChart";
 import ReusableBarChart from "@/app/ui/dashboard/graphs/ReusableBarChart";
+import EditIncomeModal from "@/app/ui/dashboard/budget/edit-income-modal";
+import { AnimatePresence } from "framer-motion";
 
 export default function Page() {
   // State til at holde data, fejl og loading status
   const [incomeData, setIncomeData] = useState<IncomeRecord[]>([]);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true); // Start i loading state
+
+  // State for modal
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedIncomeRecord, setSelectedIncomeRecord] =
+    useState<IncomeRecord | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null); // Fejl under gem fra modal
 
   // Definer currentDate, currentMonth og currentYear før de bruges
   const currentDate = new Date();
@@ -26,7 +39,6 @@ export default function Page() {
 
   // Funktion til at hente data (kan genbruges hvis du vil have en refresh knap f.eks.)
   const fetchIncomeData = async () => {
-    setIsLoading(true); // Start loading
     setFetchError(null); // Nulstil fejl
     try {
       const data = await getMyIncome();
@@ -42,10 +54,58 @@ export default function Page() {
 
   // useEffect hook til at hente data når komponenten mounter
   useEffect(() => {
+    setIsLoading(true); // Sæt global loading ved mount
     fetchIncomeData();
   }, []);
 
-  // Funktion til at håndtere opdatering af data (kaldes f.eks. efter en succesfuld redigering)
+  // ########################################
+  // ## Håndter åbning og lukning af modal ##
+  // ########################################
+
+  const handleOpenEditModal = (record: IncomeRecord) => {
+    setSelectedIncomeRecord(record);
+    setIsEditModalOpen(true);
+    setSaveError(null);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setSelectedIncomeRecord(null); // Nulstil valgt record
+  };
+
+  // ######################################
+  // ## Håndter gem af ændringer i modal ##
+  // ######################################
+
+  const handleSaveIncomeRecord = async (
+    id: string,
+    updatedData: Partial<Omit<IncomeRecord, "id" | "category">> & {
+      categoryId?: string;
+    }
+  ) => {
+    setSaveError(null);
+    try {
+      const updatedRecordFromApi = await updateIncomeRecord(id, updatedData);
+
+      // Opdater state lokalt for øjeblikkelig UI opdatering
+      // Sørg for at den opdaterede record fra API'en har alle nødvendige felter,
+      // især hvis `categoryId` blev brugt til at ændre kategorien.
+      // Backend bør returnere den fulde, opdaterede record.
+      setIncomeData((prevData) =>
+        prevData.map((record) =>
+          record.id === id ? { ...record, ...updatedRecordFromApi } : record
+        )
+      );
+      handleCloseEditModal();
+    } catch (error) {
+      console.error("Failed to save income record from page:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Ukendt fejl ved gem.";
+      setSaveError(`Kunne ikke gemme ændringer: ${errorMessage}`);
+      throw error; // Kast fejlen videre så EditIncomeModal kan fange den og vise fejl internt
+    }
+  };
+
   const handleDataUpdate = () => {
     // Simpel løsning: Hent al data igen
     fetchIncomeData();
@@ -117,7 +177,7 @@ export default function Page() {
   const formattedBarChartData = Object.values(categoryAnalysisData);
 
   return (
-    <main className="container mx-auto p-8 border">
+    <main className="container mx-auto p-8 border relative">
       {/* Budget page content */}
       <div>
         <h1 className="text-2xl font-bold mb-6">Overblik over indtægt</h1>
@@ -167,9 +227,12 @@ export default function Page() {
         </div>
       )}
 
-      {/* Send state data til SummaryTable */}
-      {/* SummaryTable skal muligvis også modtage funktioner til redigering/sletning som props senere */}
-      <SummaryTable data={incomeData} title="Mine Indkomster" />
+      {/* Tabel of indtægt */}
+      <SummaryTable
+        data={incomeData}
+        title="Mine Indkomster"
+        onEditRow={handleOpenEditModal}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
         <ReusablePieChart
@@ -197,6 +260,37 @@ export default function Page() {
           yAxisLabels={{ left: "Antal", right: "Beløb (kr)" }}
         />
       </div>
+
+      {/*  */}
+      <AnimatePresence>
+        {isEditModalOpen && selectedIncomeRecord && (
+          <EditIncomeModal
+            isOpen={isEditModalOpen}
+            onClose={handleCloseEditModal}
+            incomeRecord={selectedIncomeRecord}
+            onSave={handleSaveIncomeRecord}
+            // categories={availableCategories} // Hvis du implementerer kategoriændring
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Vis global gem-fejl hvis den er sat (f.eks. hvis modalen lukkes før fejlen vises internt) */}
+      {saveError && !isEditModalOpen && (
+        <div
+          className="fixed bottom-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-lg z-50"
+          role="alert"
+        >
+          <strong className="font-bold">Fejl ved gem! </strong>
+          <span className="block sm:inline">{saveError}</span>
+          <button
+            onClick={() => setSaveError(null)}
+            className="absolute top-0 bottom-0 right-0 px-4 py-3"
+            aria-label="Luk fejlbesked"
+          >
+            <span className="text-2xl">&times;</span>
+          </button>
+        </div>
+      )}
     </main>
   );
 }
