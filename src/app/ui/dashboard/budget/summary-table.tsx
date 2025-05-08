@@ -2,18 +2,19 @@
 
 import { formatCurrency, formatDateToLocal } from "@/app/lib/utils";
 import { IncomeRecord } from "@/services/api";
+import { PencilIcon } from "@heroicons/react/24/outline";
 
-// Define the props for the SummaryTable component
 interface SummaryTableProps {
   data: IncomeRecord[];
   title?: string;
+  onEditRow?: (record: IncomeRecord) => void; // Callback for når en række skal redigeres
 }
 
 export default function SummaryTable({
   data,
   title = "Transaktionsoversigt",
+  onEditRow,
 }: SummaryTableProps) {
-  // Handle cases where data might be empty or undefined
   if (!data || data.length === 0) {
     return (
       <div className="bg-white p-4 rounded shadow-xl text-stone-600">
@@ -59,6 +60,14 @@ export default function SummaryTable({
             >
               Beløb
             </th>
+            {onEditRow && (
+              <th
+                scope="col"
+                className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Handlinger
+              </th>
+            )}
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
@@ -85,6 +94,22 @@ export default function SummaryTable({
               >
                 {formatCurrency(parseFloat(item.amount))}
               </td>
+              {onEditRow && (
+                <td className="px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEditRow(item);
+                    }}
+                    className="text-indigo-600 hover:text-indigo-800 p-1 rounded-md hover:bg-indigo-100 transition-colors"
+                    aria-label={`Rediger ${item.description || "post"}`}
+                    title="Rediger post"
+                  >
+                    <PencilIcon className="h-5 w-5" />
+                  </button>
+                  {/* Her kan du tilføje en slet knap senere */}
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
