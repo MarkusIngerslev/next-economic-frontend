@@ -4,6 +4,11 @@ import { useState, useEffect } from "react";
 import SummaryCard from "@/app/ui/dashboard/budget/summary-card";
 import SummaryTable from "@/app/ui/dashboard/budget/summary-table";
 import { getMyIncome, IncomeRecord } from "@/services/api";
+import {
+  calculateIncomeThisYear,
+  calculateIncomeThisMonth,
+  calculateAverageMonthlyIncomeThisYear,
+} from "@/app/lib/budgetCalculations";
 
 export default function Page() {
   // State til at holde data, fejl og loading status
@@ -30,7 +35,7 @@ export default function Page() {
   // useEffect hook til at hente data når komponenten mounter
   useEffect(() => {
     fetchIncomeData();
-  }, []); // Tomt dependency array betyder, at effekten kun kører én gang efter mount
+  }, []);
 
   // Funktion til at håndtere opdatering af data (kaldes f.eks. efter en succesfuld redigering)
   const handleDataUpdate = () => {
@@ -49,6 +54,21 @@ export default function Page() {
       </main>
     );
   }
+
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth();
+  const currentYear = currentDate.getFullYear();
+
+  const incomeThisYear = calculateIncomeThisYear(incomeData, currentYear);
+  const incomeThisMonth = calculateIncomeThisMonth(
+    incomeData,
+    currentMonth,
+    currentYear
+  );
+  const averageMonthlyIncomeThisYear = calculateAverageMonthlyIncomeThisYear(
+    incomeThisYear,
+    currentMonth
+  );
 
   return (
     <main className="container mx-auto p-8 border">
@@ -69,24 +89,22 @@ export default function Page() {
         <div className="flex flex-wrap justify-center mb-4 gap-4">
           {/* SummaryCards placeres direkte i flex containeren */}
           <SummaryCard
+            className="max-w-xs w-full"
+            title="Årlig Indkomst"
+            content={`${incomeThisYear.toLocaleString()} kr.`}
+          />
+          <SummaryCard
             className="max-w-xs w-full" // Størrelse defineres her
-            title="Kort 1 Titel"
-            content="Indhold for kort 1..."
+            title="Månedlig Indkomst"
+            content={`${incomeThisMonth.toLocaleString()} kr.`}
           />
           <SummaryCard
             className="max-w-xs w-full"
-            title="Kort 2 Titel"
-            content="Indhold for kort 2..."
-          />
-          <SummaryCard
-            className="max-w-xs w-full"
-            title="Kort 3 Titel"
-            content="Indhold for kort 3..."
-          />
-          <SummaryCard
-            className="max-w-xs w-full"
-            title="Kort 4 Titel"
-            content="Indhold for kort 4..."
+            title="Gns. Månedlig Indkomst (I år)"
+            content={`${averageMonthlyIncomeThisYear.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })} kr.`}
           />
         </div>
       </div>
