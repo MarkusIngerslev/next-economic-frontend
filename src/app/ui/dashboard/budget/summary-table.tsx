@@ -2,18 +2,20 @@
 
 import { formatCurrency, formatDateToLocal } from "@/app/lib/utils";
 import { IncomeRecord } from "@/services/api";
-import { PencilIcon } from "@heroicons/react/24/outline";
+import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 
 interface SummaryTableProps {
   data: IncomeRecord[];
   title?: string;
   onEditRow?: (record: IncomeRecord) => void; // Callback for når en række skal redigeres
+  onDeleteRow?: (record: IncomeRecord) => void; // Callback for når en række skal slettes
 }
 
 export default function SummaryTable({
   data,
   title = "Transaktionsoversigt",
   onEditRow,
+  onDeleteRow,
 }: SummaryTableProps) {
   if (!data || data.length === 0) {
     return (
@@ -60,7 +62,7 @@ export default function SummaryTable({
             >
               Beløb
             </th>
-            {onEditRow && (
+            {(onEditRow || onDeleteRow) && (
               <th
                 scope="col"
                 className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -94,20 +96,36 @@ export default function SummaryTable({
               >
                 {formatCurrency(parseFloat(item.amount))}
               </td>
-              {onEditRow && (
+              {(onEditRow || onDeleteRow) && (
                 <td className="px-3 py-4 whitespace-nowrap text-center text-sm font-medium">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onEditRow(item);
-                    }}
-                    className="text-indigo-600 hover:text-indigo-800 p-1 rounded-md hover:bg-indigo-100 transition-colors"
-                    aria-label={`Rediger ${item.description || "post"}`}
-                    title="Rediger post"
-                  >
-                    <PencilIcon className="h-5 w-5" />
-                  </button>
-                  {/* Her kan du tilføje en slet knap senere */}
+                  <div className="flex justify-center items-center space-x-2">
+                    {onEditRow && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEditRow(item);
+                        }}
+                        className="text-indigo-600 hover:text-indigo-800 p-1 rounded-md hover:bg-indigo-100 transition-colors"
+                        aria-label={`Rediger ${item.description || "post"}`}
+                        title="Rediger post"
+                      >
+                        <PencilIcon className="h-5 w-5" />
+                      </button>
+                    )}
+                    {onDeleteRow && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteRow(item);
+                        }}
+                        className="text-red-600 hover:text-red-800 p-1 rounded-md hover:bg-red-100 transition-colors"
+                        aria-label={`Slet ${item.description || "post"}`}
+                        title="Slet post"
+                      >
+                        <TrashIcon className="h-5 w-5" />
+                      </button>
+                    )}
+                  </div>
                 </td>
               )}
             </tr>
