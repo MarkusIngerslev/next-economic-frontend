@@ -28,16 +28,20 @@ import { AnimatePresence } from "framer-motion";
 import { formatDateToLocal } from "@/app/lib/utils";
 
 export default function Page() {
+  // #######################################
+  // ## Definer state og initialiser data ##
+  // #######################################
+
   // State til at holde data, fejl og loading status
   const [incomeData, setIncomeData] = useState<IncomeRecord[]>([]);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true); // Start i loading state
 
-  // State for modal
+  // State edit modal
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedIncomeRecord, setSelectedIncomeRecord] =
     useState<IncomeRecord | null>(null);
-  const [saveError, setSaveError] = useState<string | null>(null); // Fejl under gem fra modal
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // State for Delete modal
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -81,7 +85,7 @@ export default function Page() {
       if (!allCategories.length)
         setFetchCategoriesError("Kunne ikke hente kategorier.");
     } finally {
-      setIsLoading(false); // Stop global loading
+      setIsLoading(false);
     }
   };
 
@@ -90,26 +94,26 @@ export default function Page() {
   }, []);
 
   // ########################################
-  // ## Håndter åbning og lukning af modal ##
+  // ## Håndter åbning og lukning af modals ##
   // ########################################
 
   // Edit Modal Handlers
   const handleOpenEditModal = (record: IncomeRecord) => {
     setSelectedIncomeRecord(record);
     setIsEditModalOpen(true);
-    setSaveError(null);
+    setSaveError(null); // Nulstil fejl fra andre handlinger
   };
 
   const handleCloseEditModal = () => {
     setIsEditModalOpen(false);
-    setSelectedIncomeRecord(null); // Nulstil valgt record
+    setSelectedIncomeRecord(null);
   };
 
   // Delete Modal Handlers
   const handleOpenDeleteModal = (record: IncomeRecord) => {
     setRecordToDelete(record);
     setIsDeleteModalOpen(true);
-    setSaveError(null); // Nulstil evt. gem-fejl
+    setSaveError(null); // Nulstil fejl fra andre handlinger
   };
 
   const handleCloseDeleteModal = () => {
@@ -133,7 +137,7 @@ export default function Page() {
 
   const handleSaveIncomeRecord = async (
     id: string,
-    updatedData: IncomeUpdatePayload // Brug IncomeUpdatePayload her
+    updatedData: IncomeUpdatePayload
   ) => {
     setSaveError(null);
     try {
@@ -155,7 +159,7 @@ export default function Page() {
   };
 
   // ########################################
-  // ## Håndter sletning af indkomstrecord ##
+  // ## Håndter sletning af incomeRecord ##
   // ########################################
 
   const handleConfirmDelete = async () => {
@@ -424,21 +428,21 @@ export default function Page() {
         !isEditModalOpen &&
         !isDeleteModalOpen &&
         !isAddIncomeModalOpen && (
-        <div
-          className="fixed bottom-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-lg z-50"
-          role="alert"
-        >
-          <strong className="font-bold">Fejl! </strong>
-          <span className="block sm:inline">{saveError}</span>
-          <button
-            onClick={() => setSaveError(null)}
-            className="absolute top-0 bottom-0 right-0 px-4 py-3"
-            aria-label="Luk fejlbesked"
+          <div
+            className="fixed bottom-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-lg z-50"
+            role="alert"
           >
-            <span className="text-2xl">&times;</span>
-          </button>
-        </div>
-      )}
+            <strong className="font-bold">Fejl! </strong>
+            <span className="block sm:inline">{saveError}</span>
+            <button
+              onClick={() => setSaveError(null)}
+              className="absolute top-0 bottom-0 right-0 px-4 py-3"
+              aria-label="Luk fejlbesked"
+            >
+              <span className="text-2xl">&times;</span>
+            </button>
+          </div>
+        )}
     </main>
   );
 }
