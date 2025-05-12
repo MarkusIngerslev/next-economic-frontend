@@ -1,5 +1,6 @@
 import { apiClient } from "./base";
 
+// Type for income record
 export interface IncomeRecord {
   id: string;
   amount: string;
@@ -12,12 +13,20 @@ export interface IncomeRecord {
   date: string;
 }
 
-// Ny type for PATCH request payload
+// Type for PATCH request payload
 export interface IncomeUpdatePayload {
   amount?: number; // Forventes som tal af backend ved opdatering
   description?: string;
   date?: string; // Format YYYY-MM-DD
   categoryId?: string;
+}
+
+// Type for POST request payload (Oprettelse af indkomst)
+export interface IncomeCreatePayload {
+  amount: number; // Forventes som tal af backend ved oprettelse
+  categoryId: string;
+  description: string;
+  date: string; // Format YYYY-MM-DD
 }
 
 /**
@@ -82,5 +91,30 @@ export async function deleteIncomeRecord(id: string): Promise<void> {
   } catch (error) {
     console.error(`Error deleting income record with id ${id}:`, error);
     throw error; // Kaster fejlen videre så den kan håndteres i UI laget
+  }
+}
+
+/**
+ * Opretter en ny income record i backend.
+ * @param incomeData Data for den nye indkomstpost.
+ *                   'amount' skal være et tal.
+ *                   'date' forventes i 'YYYY-MM-DD' format.
+ * @returns Den oprettede IncomeRecord.
+ */
+export async function createIncomeRecord(
+  incomeData: IncomeCreatePayload
+): Promise<IncomeRecord> {
+  try {
+    return await apiClient.request<IncomeRecord>("/income", {
+      method: "POST",
+      body: JSON.stringify(incomeData),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+  } catch (error) {
+    console.error("Error creating income record:", error);
+    throw error;
   }
 }
