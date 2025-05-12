@@ -67,3 +67,20 @@ export async function updateIncomeRecord(
     throw error;
   }
 }
+
+/**
+ * Sletter en specifik income record i backend.
+ * @param id ID på den income record der skal slettes.
+ * @returns En bekræftelse eller ingenting (afhængigt af backend implementation).
+ */
+export async function deleteIncomeRecord(id: string): Promise<void> {
+  try {
+    await apiClient.request<void>(`/income/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+  } catch (error) {
+    console.error(`Error deleting income record with id ${id}:`, error);
+    throw error; // Kaster fejlen videre så den kan håndteres i UI laget
+  }
+}
