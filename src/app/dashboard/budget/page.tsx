@@ -9,7 +9,10 @@ import {
   updateIncomeRecord,
   IncomeUpdatePayload,
   deleteIncomeRecord,
+  createIncomeRecord,
+  IncomeCreatePayload,
 } from "@/services/api";
+import { getAllCategories, Category } from "@/services/api/category"; // Antager du har denne fil og type
 import {
   calculateIncomeThisYear,
   calculateIncomeThisMonth,
@@ -20,6 +23,7 @@ import ReusablePieChart from "@/app/ui/dashboard/graphs/ReusablePieChart";
 import ReusableBarChart from "@/app/ui/dashboard/graphs/ReusableBarChart";
 import EditIncomeModal from "@/app/ui/dashboard/budget/edit-income-modal";
 import ConfirmDeleteModal from "@/app/ui/dashboard/budget/confirm-delete-modal";
+import AddIncomeModal from "@/app/ui/dashboard/budget/add-income-modal";
 import { AnimatePresence } from "framer-motion";
 import { formatDateToLocal } from "@/app/lib/utils";
 
@@ -40,31 +44,49 @@ export default function Page() {
   const [recordToDelete, setRecordToDelete] = useState<IncomeRecord | null>(
     null
   );
-  const [isDeleting, setIsDeleting] = useState(false); // For at vise loading state på slet knap
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // State for Add Income modal
+  const [isAddIncomeModalOpen, setIsAddIncomeModalOpen] = useState(false);
+  const [allCategories, setAllCategories] = useState<Category[]>([]);
+  const [fetchCategoriesError, setFetchCategoriesError] = useState<
+    string | null
+  >(null);
 
   // Definer currentDate, currentMonth og currentYear før de bruges
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth();
   const currentYear = currentDate.getFullYear();
 
+  // ####################################
+  // ## Hent data fra backend ved load ##
+  // ## og opdater state med dataene   ##
+  // ####################################
+
   // Funktion til at hente data fra backend
-  const fetchIncomeData = async () => {
-    setFetchError(null); // Nulstil fejl
+  const fetchAllData = async () => {
+    setIsLoading(true);
+    setFetchError(null);
+    setFetchCategoriesError(null);
     try {
-      const data = await getMyIncome();
-      setIncomeData(data);
+      const [income, categories] = await Promise.all([
+        getMyIncome(),
+        getAllCategories(),
+      ]);
+      setIncomeData(income);
+      setAllCategories(categories);
     } catch (error) {
-      console.error("Failed to fetch income data:", error);
-      setFetchError("Kunne ikke hente indkomstdata. Prøv igen senere.");
-      setIncomeData([]);
+      console.error("Failed to fetch initial data:", error);
+      if (!incomeData.length) setFetchError("Kunne ikke hente indkomstdata.");
+      if (!allCategories.length)
+        setFetchCategoriesError("Kunne ikke hente kategorier.");
     } finally {
       setIsLoading(false); // Stop global loading
     }
   };
 
   useEffect(() => {
-    setIsLoading(true); // Sæt global loading ved mount
-    fetchIncomeData();
+    fetchAllData();
   }, []);
 
   // ########################################
@@ -93,6 +115,16 @@ export default function Page() {
   const handleCloseDeleteModal = () => {
     setIsDeleteModalOpen(false);
     setRecordToDelete(null);
+  };
+
+  // Add Income Modal Handlers
+  const handleOpenAddIncomeModal = () => {
+    setSaveError(null); // Nulstil fejl fra andre handlinger
+    setIsAddIncomeModalOpen(true);
+  };
+
+  const handleCloseAddIncomeModal = () => {
+    setIsAddIncomeModalOpen(false);
   };
 
   // ######################################
@@ -141,12 +173,32 @@ export default function Page() {
       console.error("Failed to delete income record:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Ukendt fejl ved sletning.";
-      setSaveError(`Kunne ikke slette post: ${errorMessage}`);
-      // Overvej at lade modalen være åben, så brugeren ser fejlen der, eller luk og vis globalt.
-      // For nu lukker vi den og viser global fejl.
-      // throw error; // Hvis ConfirmDeleteModal skal håndtere sin egen fejlvisning
+      // setSaveError(`Kunne ikke slette post: ${errorMessage}`);
+      throw error; // Hvis ConfirmDeleteModal skal håndtere sin egen fejlvisning
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  // #######################################
+  // ## Håndter oprettelse af ny indkomst ##
+  // #######################################
+
+  const handleCreateNewIncome = async (newIncomeData: IncomeCreatePayload) => {
+    setSaveError(null);
+    try {
+      const createdRecord = await createIncomeRecord(newIncomeData);
+      // Tilføj den nye record til starten af arrayet for øjeblikkelig UI opdatering
+      // eller fetchIncomeData() igen for at få den seneste liste inkl. den nye.
+      // At tilføje lokalt er hurtigere for UI.
+      setIncomeData((prevData) => [createdRecord, ...prevData]);
+      handleCloseAddIncomeModal();
+    } catch (error) {
+      console.error("Failed to create new income record:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Ukendt fejl ved oprettelse.";
+      setSaveError(`Kunne ikke oprette indkomst: ${errorMessage}`);
+      throw error; // Kast fejlen videre så AddIncomeModal kan fange den
     }
   };
 
@@ -223,6 +275,9 @@ export default function Page() {
   // Konverter til array for Recharts
   const formattedBarChartData = Object.values(categoryAnalysisData);
 
+  // Filtrer kategorier til kun at inkludere dem af typen 'income' for AddIncomeModal
+  const incomeCategories = allCategories.filter((cat) => cat.type === "income");
+
   // ###########################################
   // ## Render UI med data og modal komponent ##
   // ###########################################
@@ -277,6 +332,19 @@ export default function Page() {
           <span className="block sm:inline"> {fetchError}</span>
         </div>
       )}
+      {fetchCategoriesError && !allCategories.length && (
+        <div
+          className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative mb-4"
+          role="alert"
+        >
+          <strong className="font-bold">Advarsel!</strong>
+          <span className="block sm:inline">
+            {" "}
+            {fetchCategoriesError} Det kan påvirke muligheden for at
+            tilføje/redigere indtægter.
+          </span>
+        </div>
+      )}
 
       {/* Tabel of indtægt */}
       <SummaryTable
@@ -284,6 +352,7 @@ export default function Page() {
         title="Mine Indkomster"
         onEditRow={handleOpenEditModal}
         onDeleteRow={handleOpenDeleteModal}
+        onAddIncome={handleOpenAddIncomeModal}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
@@ -339,10 +408,22 @@ export default function Page() {
             isDeleting={isDeleting}
           />
         )}
+        {isAddIncomeModalOpen && (
+          <AddIncomeModal
+            isOpen={isAddIncomeModalOpen}
+            onClose={handleCloseAddIncomeModal}
+            onSave={handleCreateNewIncome}
+            categories={incomeCategories} // Send kun indkomst-kategorier
+            defaultDate={new Date().toISOString().split("T")[0]} // Sæt dagens dato
+          />
+        )}
       </AnimatePresence>
 
       {/* Vis global gem-fejl hvis den er sat (f.eks. hvis modalen lukkes før fejlen vises internt) */}
-      {saveError && !isEditModalOpen && !isDeleteModalOpen && (
+      {saveError &&
+        !isEditModalOpen &&
+        !isDeleteModalOpen &&
+        !isAddIncomeModalOpen && (
         <div
           className="fixed bottom-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-lg z-50"
           role="alert"
