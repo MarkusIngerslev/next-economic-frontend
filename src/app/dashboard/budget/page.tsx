@@ -8,6 +8,7 @@ import {
   IncomeRecord,
   updateIncomeRecord,
   IncomeUpdatePayload,
+  deleteIncomeRecord,
 } from "@/services/api";
 import {
   calculateIncomeThisYear,
@@ -18,7 +19,9 @@ import {
 import ReusablePieChart from "@/app/ui/dashboard/graphs/ReusablePieChart";
 import ReusableBarChart from "@/app/ui/dashboard/graphs/ReusableBarChart";
 import EditIncomeModal from "@/app/ui/dashboard/budget/edit-income-modal";
+import ConfirmDeleteModal from "@/app/ui/dashboard/budget/confirm-delete-modal";
 import { AnimatePresence } from "framer-motion";
+import { formatDateToLocal } from "@/app/lib/utils";
 
 export default function Page() {
   // State til at holde data, fejl og loading status
@@ -31,6 +34,13 @@ export default function Page() {
   const [selectedIncomeRecord, setSelectedIncomeRecord] =
     useState<IncomeRecord | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null); // Fejl under gem fra modal
+
+  // State for Delete modal
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [recordToDelete, setRecordToDelete] = useState<IncomeRecord | null>(
+    null
+  );
+  const [isDeleting, setIsDeleting] = useState(false); // For at vise loading state på slet knap
 
   // Definer currentDate, currentMonth og currentYear før de bruges
   const currentDate = new Date();
@@ -61,6 +71,7 @@ export default function Page() {
   // ## Håndter åbning og lukning af modal ##
   // ########################################
 
+  // Edit Modal Handlers
   const handleOpenEditModal = (record: IncomeRecord) => {
     setSelectedIncomeRecord(record);
     setIsEditModalOpen(true);
@@ -70,6 +81,18 @@ export default function Page() {
   const handleCloseEditModal = () => {
     setIsEditModalOpen(false);
     setSelectedIncomeRecord(null); // Nulstil valgt record
+  };
+
+  // Delete Modal Handlers
+  const handleOpenDeleteModal = (record: IncomeRecord) => {
+    setRecordToDelete(record);
+    setIsDeleteModalOpen(true);
+    setSaveError(null); // Nulstil evt. gem-fejl
+  };
+
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setRecordToDelete(null);
   };
 
   // ######################################
@@ -99,8 +122,32 @@ export default function Page() {
     }
   };
 
-  const handleDataUpdate = () => {
-    fetchIncomeData();
+  // ########################################
+  // ## Håndter sletning af indkomstrecord ##
+  // ########################################
+
+  const handleConfirmDelete = async () => {
+    if (!recordToDelete) return;
+
+    setIsDeleting(true);
+    setSaveError(null);
+    try {
+      await deleteIncomeRecord(recordToDelete.id);
+      setIncomeData((prevData) =>
+        prevData.filter((record) => record.id !== recordToDelete.id)
+      );
+      handleCloseDeleteModal();
+    } catch (error) {
+      console.error("Failed to delete income record:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Ukendt fejl ved sletning.";
+      setSaveError(`Kunne ikke slette post: ${errorMessage}`);
+      // Overvej at lade modalen være åben, så brugeren ser fejlen der, eller luk og vis globalt.
+      // For nu lukker vi den og viser global fejl.
+      // throw error; // Hvis ConfirmDeleteModal skal håndtere sin egen fejlvisning
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   // #########################################
@@ -236,6 +283,7 @@ export default function Page() {
         data={incomeData}
         title="Mine Indkomster"
         onEditRow={handleOpenEditModal}
+        onDeleteRow={handleOpenDeleteModal}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
@@ -279,15 +327,27 @@ export default function Page() {
             // categories={availableCategories} // Hvis du implementerer kategoriændring
           />
         )}
+        {isDeleteModalOpen && recordToDelete && (
+          <ConfirmDeleteModal
+            isOpen={isDeleteModalOpen}
+            onClose={handleCloseDeleteModal}
+            onConfirm={handleConfirmDelete}
+            itemName={
+              recordToDelete.description ||
+              `post fra ${formatDateToLocal(recordToDelete.date)}`
+            }
+            isDeleting={isDeleting}
+          />
+        )}
       </AnimatePresence>
 
       {/* Vis global gem-fejl hvis den er sat (f.eks. hvis modalen lukkes før fejlen vises internt) */}
-      {saveError && !isEditModalOpen && (
+      {saveError && !isEditModalOpen && !isDeleteModalOpen && (
         <div
           className="fixed bottom-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded shadow-lg z-50"
           role="alert"
         >
-          <strong className="font-bold">Fejl ved gem! </strong>
+          <strong className="font-bold">Fejl! </strong>
           <span className="block sm:inline">{saveError}</span>
           <button
             onClick={() => setSaveError(null)}
