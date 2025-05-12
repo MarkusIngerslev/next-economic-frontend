@@ -2,13 +2,18 @@
 
 import { formatCurrency, formatDateToLocal } from "@/app/lib/utils";
 import { IncomeRecord } from "@/services/api";
-import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import {
+  PencilIcon,
+  TrashIcon,
+  PlusCircleIcon,
+} from "@heroicons/react/24/outline";
 
 interface SummaryTableProps {
   data: IncomeRecord[];
   title?: string;
   onEditRow?: (record: IncomeRecord) => void; // Callback for når en række skal redigeres
   onDeleteRow?: (record: IncomeRecord) => void; // Callback for når en række skal slettes
+  onAddIncome?: () => void; // Callback for når der skal tilføjes en indkomst
 }
 
 export default function SummaryTable({
@@ -16,11 +21,25 @@ export default function SummaryTable({
   title = "Transaktionsoversigt",
   onEditRow,
   onDeleteRow,
+  onAddIncome,
 }: SummaryTableProps) {
+  // Vis stadig "Tilføj" knap selvom der ikke er data
   if (!data || data.length === 0) {
     return (
       <div className="bg-white p-4 rounded shadow-xl text-stone-600">
-        <h2 className="text-xl font-bold mb-2">{title}</h2>
+        <div className="flex justify-between items-center mb-2">
+          <h2 className="text-xl font-bold">{title}</h2>
+          {onAddIncome && (
+            <button
+              onClick={onAddIncome}
+              className="flex items-center px-3 py-1.5 bg-green-500 text-white text-sm font-medium rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              title="Tilføj ny indkomst"
+            >
+              <PlusCircleIcon className="h-5 w-5 mr-1" />
+              Tilføj Ny
+            </button>
+          )}
+        </div>
         <p>Ingen data at vise.</p>
       </div>
     );
@@ -28,7 +47,19 @@ export default function SummaryTable({
 
   return (
     <div className="bg-white mb-8 rounded shadow-xl text-stone-600 overflow-x-auto">
-      <h2 className="text-xl font-bold my-4 ms-4">{title}</h2>
+      <div className="flex justify-between items-center my-4 mx-4">
+        <h2 className="text-xl font-bold my-4 ms-4">{title}</h2>
+        {onAddIncome && (
+          <button
+            onClick={onAddIncome}
+            className="flex items-center px-3 py-1.5 bg-green-500 text-white text-sm font-medium rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            title="Tilføj ny indkomst"
+          >
+            <PlusCircleIcon className="h-5 w-5 mr-1" />
+            Tilføj Ny
+          </button>
+        )}
+      </div>
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
