@@ -2,25 +2,15 @@
 
 import React, { useState, useEffect } from "react";
 import { IncomeRecord, IncomeUpdatePayload } from "@/services/api";
-import { motion, AnimatePresence } from "framer-motion";
-
-// Antagelse: Du har en måde at hente kategoriliste på, hvis brugeren skal kunne ændre kategori.
-// For nu lader vi kategori være ikke-redigerbar i denne simple version, men det kan udvides.
-// interface Category {
-//   id: string;
-//   name: string;
-//   type: "income" | "expense";
-// }
+import { Category } from "@/services/api/category";
+import { motion } from "framer-motion";
 
 interface EditIncomeModalProps {
   isOpen: boolean;
   onClose: () => void;
   incomeRecord: IncomeRecord | null;
-  onSave: (
-    id: string,
-    updatedData: IncomeUpdatePayload // Brug IncomeUpdatePayload her
-  ) => Promise<void>; // onSave skal nu være async
-  // categories?: Category[]; // Tilføj hvis du vil kunne ændre kategori
+  onSave: (id: string, updatedData: IncomeUpdatePayload) => Promise<void>;
+  categories?: Category[];
 }
 
 const modalVariants = {
@@ -50,17 +40,19 @@ export default function EditIncomeModal({
   onClose,
   incomeRecord,
   onSave,
+  categories,
 }: EditIncomeModalProps) {
   // State for hvert felt der kan redigeres
   const [formData, setFormData] = useState<{
     amount: string;
     description: string;
     date: string; // Vil blive YYYY-MM-DD format for input type="date"
-    categoryId?: string; // Hvis kategori skal kunne ændres
+    categoryId?: string;
   }>({
     amount: "",
     description: "",
     date: "",
+    categoryId: "",
   });
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -103,10 +95,6 @@ export default function EditIncomeModal({
         setIsSaving(false);
         return;
       }
-      // Tjek om den numeriske værdi (formateret tilbage til string med 2 decimaler for fair sammenligning)
-      // reelt er forskellig fra den oprindelige string-værdi for at undgå unødvendige updates
-      // hvis f.eks. "100" ændres til "100.00" i input, men backend allerede har "100.00"
-      // Dette er en avanceret overvejelse, for nu sender vi hvis input-strengen er ændret og gyldig.
       changedData.amount = numericAmount;
     }
 
@@ -114,23 +102,23 @@ export default function EditIncomeModal({
       changedData.description = formData.description;
     }
 
-    // Dato input (type="date") returnerer YYYY-MM-DD.
-    // Sammenlign med den oprindelige dato (også formateret til YYYY-MM-DD).
     const originalDateFormatted = incomeRecord.date
       ? incomeRecord.date.split("T")[0]
       : "";
     if (formData.date !== originalDateFormatted) {
       changedData.date = formData.date;
     }
-    // Hvis du implementerer kategoriændring:
-    // if (formData.categoryId && formData.categoryId !== incomeRecord.category.id) {
-    //   changedData.categoryId = formData.categoryId;
-    // }
+
+    if (
+      formData.categoryId &&
+      formData.categoryId !== incomeRecord.category.id
+    ) {
+      changedData.categoryId = formData.categoryId;
+    }
 
     if (Object.keys(changedData).length > 0) {
       try {
         await onSave(incomeRecord.id, changedData);
-        // onClose(); // page.tsx vil håndtere lukning efter succesfuld dataopdatering
       } catch (err) {
         console.error("Failed to save income record:", err);
         setError(
@@ -140,13 +128,12 @@ export default function EditIncomeModal({
         );
       }
     } else {
-      onClose(); // Luk hvis ingen ændringer
+      onClose();
     }
     setIsSaving(false);
   };
 
   return (
-    // AnimatePresence skal være i parent komponenten (page.tsx) for at exit animation virker
     <motion.div
       className="absolute inset-0 z-50 flex justify-center items-center  backdrop-blur-xs"
       variants={backdropVariants}
@@ -219,24 +206,36 @@ export default function EditIncomeModal({
                 disabled={isSaving}
               />
             </div>
-            {/*
-            // Eksempel på kategori dropdown (kræver categories prop og API til at hente dem)
+
             <div>
-              <label htmlFor="categoryId" className="block text-sm font-medium text-gray-700">Kategori</label>
+              <label
+                htmlFor="categoryId"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Kategori
+              </label>
               <select
                 id="categoryId"
-                value={formData.categoryId || ""}
+                value={formData.categoryId} // formData.categoryId bør allerede være sat
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 disabled={isSaving || !categories || categories.length === 0}
               >
-                <option value="">Vælg kategori</option>
-                {categories?.map(cat => (
-                  <option key={cat.id} value={cat.id}>{cat.name} ({cat.type})</option>
+                {/* Overvej en "Vælg ikke" eller lad den nuværende være valgt som default */}
+                {categories?.map((cat) => (
+                  // Sørg for at kun 'income' kategorier vises, hvis det er relevant for denne modal
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
                 ))}
               </select>
+              {(!categories || categories.length === 0) && (
+                <p className="mt-1 text-xs text-gray-500">
+                  Ingen kategorier tilgængelige.
+                </p>
+              )}
             </div>
-            */}
+
             {error && (
               <p className="text-sm text-red-600 bg-red-100 p-2 rounded">
                 {error}

@@ -143,6 +143,10 @@ export default function Page() {
     try {
       const updatedRecordFromApi = await updateIncomeRecord(id, updatedData);
 
+      // For debugging: Se hvad backend returnerer, og hvad der blev sendt
+      console.log("Updated record from API:", updatedRecordFromApi);
+      console.log("Data sent for update (updatedData):", updatedData);
+
       setIncomeData((prevData) =>
         prevData.map((record) =>
           record.id === id ? { ...record, ...updatedRecordFromApi } : record
@@ -397,7 +401,7 @@ export default function Page() {
             onClose={handleCloseEditModal}
             incomeRecord={selectedIncomeRecord}
             onSave={handleSaveIncomeRecord}
-            // categories={availableCategories} // Hvis du implementerer kategoriændring
+            categories={incomeCategories}
           />
         )}
         {isDeleteModalOpen && recordToDelete && (
