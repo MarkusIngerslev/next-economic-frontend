@@ -42,11 +42,10 @@ export default function EditIncomeModal({
   onSave,
   categories,
 }: EditIncomeModalProps) {
-  // State for hvert felt der kan redigeres
   const [formData, setFormData] = useState<{
     amount: string;
     description: string;
-    date: string; // Vil blive YYYY-MM-DD format for input type="date"
+    date: string;
     categoryId?: string;
   }>({
     amount: "",
@@ -62,8 +61,8 @@ export default function EditIncomeModal({
       setFormData({
         amount: incomeRecord.amount,
         description: incomeRecord.description,
-        date: incomeRecord.date ? incomeRecord.date.split("T")[0] : "", // Format for date input
-        categoryId: incomeRecord.category.id, // Gem categoryId for potentielle ændringer
+        date: incomeRecord.date ? incomeRecord.date.split("T")[0] : "",
+        categoryId: incomeRecord.category.id,
       });
       setError(null);
     }
@@ -216,14 +215,12 @@ export default function EditIncomeModal({
               </label>
               <select
                 id="categoryId"
-                value={formData.categoryId} // formData.categoryId bør allerede være sat
+                value={formData.categoryId}
                 onChange={handleChange}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 disabled={isSaving || !categories || categories.length === 0}
               >
-                {/* Overvej en "Vælg ikke" eller lad den nuværende være valgt som default */}
                 {categories?.map((cat) => (
-                  // Sørg for at kun 'income' kategorier vises, hvis det er relevant for denne modal
                   <option key={cat.id} value={cat.id}>
                     {cat.name}
                   </option>

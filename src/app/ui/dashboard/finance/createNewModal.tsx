@@ -2,15 +2,15 @@
 
 import React, { useState, useEffect } from "react";
 import { IncomeCreatePayload } from "@/services/api";
-import { Category } from "@/services/api/category"; // Antager du har denne fil og type
+import { Category } from "@/services/api/category";
 import { motion } from "framer-motion";
 
 interface AddIncomeModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (newIncomeData: IncomeCreatePayload) => Promise<void>;
-  categories: Category[]; // Kategorier af typen 'income'
-  defaultDate?: string; // YYYY-MM-DD format
+  categories: Category[];
+  defaultDate?: string;
 }
 
 const modalVariants = {
@@ -37,9 +37,9 @@ const backdropVariants = {
 
 const initialFormData = {
   description: "",
-  amount: "", // Vil blive konverteret til number
+  amount: "",
   categoryId: "",
-  date: new Date().toISOString().split("T")[0], // Sæt til dagens dato som default
+  date: new Date().toISOString().split("T")[0],
 };
 
 export default function AddIncomeModal({
@@ -51,9 +51,9 @@ export default function AddIncomeModal({
 }: AddIncomeModalProps) {
   const [formData, setFormData] = useState<{
     description: string;
-    amount: string; // Input er string
+    amount: string;
     categoryId: string;
-    date: string; // YYYY-MM-DD
+    date: string;
   }>(() => ({
     ...initialFormData,
     date: defaultDate || initialFormData.date,
@@ -63,8 +63,6 @@ export default function AddIncomeModal({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Nulstil form når modal åbnes (hvis den ikke allerede er åben og har data)
-    // eller hvis defaultDate ændres
     if (isOpen) {
       setFormData({
         ...initialFormData,
@@ -118,7 +116,6 @@ export default function AddIncomeModal({
 
     try {
       await onSave(newIncomeData);
-      // onClose(); // Parent (page.tsx) vil håndtere lukning efter succes
     } catch (err) {
       console.error("Failed to save new income record:", err);
       setError(

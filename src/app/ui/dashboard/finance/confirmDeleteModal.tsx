@@ -45,9 +45,7 @@ export default function ConfirmDeleteModal({
   const handleDelete = async () => {
     try {
       await onConfirm();
-      // onClose(); // Lukkes typisk af parent efter succesfuld sletning
     } catch (error) {
-      // Fejlhåndtering kan ske i parent eller her, hvis modalen skal vise en fejl
       console.error("Deletion failed from modal:", error);
     }
   };
@@ -59,12 +57,12 @@ export default function ConfirmDeleteModal({
       initial="hidden"
       animate="visible"
       exit="exit"
-      onClick={onClose} // Luk modal ved klik på baggrund
+      onClick={onClose}
     >
       <motion.div
         className="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm"
         variants={modalVariants}
-        onClick={(e) => e.stopPropagation()} // Forhindrer lukning ved klik inde i modal
+        onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg font-semibold mb-4">Bekræft Sletning</h2>
         <p className="mb-6 text-gray-700">

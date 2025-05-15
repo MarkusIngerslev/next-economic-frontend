@@ -11,9 +11,9 @@ import {
 interface SummaryTableProps {
   data: IncomeRecord[];
   title?: string;
-  onEditRow?: (record: IncomeRecord) => void; // Callback for når en række skal redigeres
-  onDeleteRow?: (record: IncomeRecord) => void; // Callback for når en række skal slettes
-  onAddIncome?: () => void; // Callback for når der skal tilføjes en indkomst
+  onEditRow?: (record: IncomeRecord) => void;
+  onDeleteRow?: (record: IncomeRecord) => void;
+  onAddIncome?: () => void;
 }
 
 export default function SummaryTable({

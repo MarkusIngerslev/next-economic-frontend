@@ -1,8 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import SummaryCard from "@/app/ui/dashboard/budget/summary-card";
-import SummaryTable from "@/app/ui/dashboard/budget/summary-table";
+import { AnimatePresence } from "framer-motion";
+
+// Komponenter
+import SummaryCard from "@/app/ui/dashboard/finance/summaryCard";
+import SummaryTable from "@/app/ui/dashboard/finance/summaryTable";
+import EditIncomeModal from "@/app/ui/dashboard/finance/editFinanceModal";
+import ConfirmDeleteModal from "@/app/ui/dashboard/finance/confirmDeleteModal";
+import AddIncomeModal from "@/app/ui/dashboard/finance/createNewModal";
+
+// API kald
 import {
   getMyIncome,
   IncomeRecord,
@@ -13,19 +21,19 @@ import {
   IncomeCreatePayload,
 } from "@/services/api";
 import { getAllCategories, Category } from "@/services/api/category"; // Antager du har denne fil og type
+
+// Beregningsfunktioner
 import {
   calculateIncomeThisYear,
   calculateIncomeThisMonth,
   calculateAverageMonthlyIncomeThisYear,
 } from "@/app/lib/budgetCalculations";
+import { formatDateToLocal } from "@/app/lib/utils";
 
+// Graf komponenter
 import ReusablePieChart from "@/app/ui/dashboard/graphs/ReusablePieChart";
 import ReusableBarChart from "@/app/ui/dashboard/graphs/ReusableBarChart";
-import EditIncomeModal from "@/app/ui/dashboard/budget/edit-income-modal";
-import ConfirmDeleteModal from "@/app/ui/dashboard/budget/confirm-delete-modal";
-import AddIncomeModal from "@/app/ui/dashboard/budget/add-income-modal";
-import { AnimatePresence } from "framer-motion";
-import { formatDateToLocal } from "@/app/lib/utils";
+
 
 export default function Page() {
   // #######################################
