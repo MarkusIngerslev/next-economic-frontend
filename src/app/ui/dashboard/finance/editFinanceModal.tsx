@@ -35,7 +35,7 @@ const backdropVariants = {
   exit: { opacity: 0, transition: { duration: 0.2 } },
 };
 
-export default function EditIncomeModal({
+export default function EditFinanceModal({
   isOpen,
   onClose,
   incomeRecord,

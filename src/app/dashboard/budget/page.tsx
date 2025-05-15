@@ -6,7 +6,7 @@ import { AnimatePresence } from "framer-motion";
 // Komponenter
 import SummaryCard from "@/app/ui/dashboard/finance/summaryCard";
 import SummaryTable from "@/app/ui/dashboard/finance/summaryTable";
-import EditIncomeModal from "@/app/ui/dashboard/finance/editFinanceModal";
+import EditFinanceModal from "@/app/ui/dashboard/finance/editFinanceModal";
 import ConfirmDeleteModal from "@/app/ui/dashboard/finance/confirmDeleteModal";
 import AddIncomeModal from "@/app/ui/dashboard/finance/createNewModal";
 
@@ -33,7 +33,6 @@ import { formatDateToLocal } from "@/app/lib/utils";
 // Graf komponenter
 import ReusablePieChart from "@/app/ui/dashboard/graphs/ReusablePieChart";
 import ReusableBarChart from "@/app/ui/dashboard/graphs/ReusableBarChart";
-
 
 export default function Page() {
   // #######################################
@@ -404,7 +403,7 @@ export default function Page() {
       {/*  */}
       <AnimatePresence>
         {isEditModalOpen && selectedIncomeRecord && (
-          <EditIncomeModal
+          <EditFinanceModal
             isOpen={isEditModalOpen}
             onClose={handleCloseEditModal}
             incomeRecord={selectedIncomeRecord}
