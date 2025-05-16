@@ -77,7 +77,7 @@ export default function DeleteCategoryModal({
         </h2>
         <p className="text-gray-300 mb-6">
           Er du sikker på, at du vil slette kategorien "
-          <span className="font-semibold text-gray-100">
+          <span className="font-semibold text-sky-400">
             {categoryToDelete.name}
           </span>
           "? Denne handling kan ikke fortrydes.

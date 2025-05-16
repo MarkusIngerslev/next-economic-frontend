@@ -42,7 +42,7 @@ export default function EditCategoryModal({
     if (categoryToEdit) {
       setName(categoryToEdit.name);
       setType(categoryToEdit.type);
-      setError(null); 
+      setError(null);
     }
   }, [categoryToEdit]);
 
@@ -92,7 +92,8 @@ export default function EditCategoryModal({
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-2xl font-semibold mb-6 text-gray-100">
-          Rediger Kategori: {categoryToEdit.name}
+          Rediger Kategori:{" "}
+          <span className="text-sky-400">{categoryToEdit.name}</span>
         </h2>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
