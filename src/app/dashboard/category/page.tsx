@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import CategoryTabs from "@/app/ui/dashboard/category/categoryTabs";
 import CreateCategoryModal from "@/app/ui/dashboard/category/createCategoryModal";
+import EditCategoryModal from "@/app/ui/dashboard/category/editCategoryModal";
 import { getAllCategories, Category } from "@/services/api/category";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import { AnimatePresence } from "framer-motion";
@@ -12,9 +13,10 @@ export default function Page() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // State for edit modal
+  const [categoryToEdit, setCategoryToEdit] = useState<Category | null>(null); // State for kategori der redigeres
 
   const fetchCategories = useCallback(async () => {
-    // Wrap med useCallback
     try {
       setIsLoading(true);
       const fetchedCategories = await getAllCategories();
@@ -31,38 +33,46 @@ export default function Page() {
     } finally {
       setIsLoading(false);
     }
-  }, []); // Tom dependency array, da den ikke afhænger af props/state udefra
+  }, []);
 
   useEffect(() => {
     fetchCategories();
-  }, [fetchCategories]); // Kald fetchCategories når komponenten mounter, og hvis fetchCategories ændrer sig
+  }, [fetchCategories]);
 
   const handleCategoryCreated = (newCategory: Category) => {
-    // setCategories((prevCategories) => [...prevCategories, newCategory]); // Optimistisk opdatering
-    fetchCategories(); // Eller gen-hent alle for at sikre konsistens
-    setIsCreateModalOpen(false); // Luk modalen
+    fetchCategories();
+    setIsCreateModalOpen(false);
+  };
+
+  const handleOpenEditModal = (category: Category) => {
+    setCategoryToEdit(category);
+    setIsEditModalOpen(true);
+  };
+
+  const handleCategoryUpdated = (updatedCategory: Category) => {
+    fetchCategories();
+    setIsEditModalOpen(false);
+    setCategoryToEdit(null); // Nulstil valgt kategori
   };
 
   if (isLoading && categories.length === 0) {
-    // Vis kun fuldskærmsloader ved initial load
     return (
-      <main className="p-8 bg-gray-800 text-white  flex justify-center items-center">
+      <main className="p-8 bg-gray-800 text-white min-h-screen flex justify-center items-center">
         <p>Indlæser kategorier...</p>
       </main>
     );
   }
 
   if (error && categories.length === 0) {
-    // Vis kun fuldskærmsfejl hvis ingen kategorier er loadet
     return (
-      <main className="p-8 bg-gray-800 text-white  flex justify-center items-center">
+      <main className="p-8 bg-gray-800 text-white min-h-screen flex justify-center items-center">
         <p className="text-red-500">Fejl: {error}</p>
       </main>
     );
   }
 
   return (
-    <main className="relative border p-8 bg-gray-800 text-white">
+    <main className="relative p-8 bg-gray-800 text-white min-h-screen">
       <div className="container mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-100">Kategorier</h1>
@@ -75,21 +85,23 @@ export default function Page() {
           </button>
         </div>
 
-        {/* Vis fejlbesked her, hvis der er en, men vi stadig har kategorier at vise */}
         {error && categories.length > 0 && (
           <div className="mb-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-md">
             <p>Der opstod en fejl: {error}. Viser muligvis forældede data.</p>
           </div>
         )}
 
-        {/* Viser loading spinner/tekst hvis vi re-fetcher men allerede har data */}
         {isLoading && categories.length > 0 && (
           <div className="text-center py-4 text-gray-400">
             Indlæser opdateringer...
           </div>
         )}
 
-        <CategoryTabs categories={categories} />
+        <CategoryTabs
+          categories={categories}
+          onEditCategory={handleOpenEditModal} // Send handler til tabs
+          // onDeleteCategory={}
+        />
       </div>
 
       <AnimatePresence>
@@ -101,6 +113,19 @@ export default function Page() {
             onCategoryCreated={handleCategoryCreated}
           />
         )}
+        {isEditModalOpen &&
+          categoryToEdit && ( // Sørg for at categoryToEdit ikke er null
+            <EditCategoryModal
+              key="edit-category-modal"
+              isOpen={isEditModalOpen}
+              onClose={() => {
+                setIsEditModalOpen(false);
+                setCategoryToEdit(null); // Nulstil også her for en sikkerheds skyld
+              }}
+              categoryToEdit={categoryToEdit}
+              onCategoryUpdated={handleCategoryUpdated}
+            />
+          )}
       </AnimatePresence>
     </main>
   );

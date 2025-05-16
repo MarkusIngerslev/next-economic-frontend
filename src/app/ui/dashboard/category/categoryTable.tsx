@@ -1,10 +1,15 @@
 import { Category } from "@/services/api/category";
+import { PencilSquareIcon } from "@heroicons/react/24/outline";
 
 interface CategoryTableProps {
   categories: Category[];
+  onEditCategory: (category: Category) => void;
 }
 
-export default function CategoryTable({ categories }: CategoryTableProps) {
+export default function CategoryTable({
+  categories,
+  onEditCategory,
+}: CategoryTableProps) {
   if (categories.length === 0) {
     return (
       <div className="bg-gray-700 p-6 rounded-lg shadow-md border border-gray-600">
@@ -47,16 +52,18 @@ export default function CategoryTable({ categories }: CategoryTableProps) {
                 {category.name}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 w-[120px]">
-                {" "}
-                {/* Fast bredde */}
                 {category.type === "income" ? "Indtægt" : "Udgift"}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium w-24">
-                {" "}
-                {/* Fast bredde */}
-                <a href="#" className="text-indigo-400 hover:text-indigo-300">
-                  Edit
-                </a>
+                <button
+                  onClick={() => onEditCategory(category)}
+                  className="text-cyan-400 hover:text-cyan-300 p-1 rounded-md hover:bg-gray-500 transition-colors"
+                  title="Rediger kategori"
+                >
+                  <PencilSquareIcon className="h-5 w-5" />
+                  <span className="sr-only">Rediger</span>
+                </button>
+                {/* Her kan du tilføje en slet knap senere */}
               </td>
             </tr>
           ))}

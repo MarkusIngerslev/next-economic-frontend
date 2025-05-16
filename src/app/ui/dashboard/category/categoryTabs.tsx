@@ -6,11 +6,17 @@ import CategoryTable from "./categoryTable";
 
 interface CategoryTabsProps {
   categories: Category[];
+  onEditCategory: (category: Category) => void;
+  // onDeleteCategory: (categoryId: string) => void;
 }
 
 type TabType = "income" | "expense";
 
-export default function CategoryTabs({ categories }: CategoryTabsProps) {
+export default function CategoryTabs({
+  categories,
+  onEditCategory,
+}: // onDeleteCategory,
+CategoryTabsProps) {
   const [activeTab, setActiveTab] = useState<TabType>("income");
 
   const filteredCategories = categories.filter(
@@ -36,8 +42,7 @@ export default function CategoryTabs({ categories }: CategoryTabsProps) {
     "bg-gray-700 text-gray-300 hover:bg-gray-700 hover:text-gray-100";
 
   return (
-    <div className="w-full max-w-xl mx-auto">
-      {/* Container for fanebladsknapper - justeret styling */}
+    <div className="w-full ">
       <div className="flex">
         <button
           onClick={() => handleTabChange("income")}
@@ -56,7 +61,11 @@ export default function CategoryTabs({ categories }: CategoryTabsProps) {
           Udgifter
         </button>
       </div>
-      <CategoryTable categories={filteredCategories} />
+      <CategoryTable
+        categories={filteredCategories}
+        onEditCategory={onEditCategory} // Send prop videre
+        // onDeleteCategory={onDeleteCategory} // Send prop videre
+      />
     </div>
   );
 }
