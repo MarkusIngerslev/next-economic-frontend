@@ -16,7 +16,7 @@ export default function CategoryTable({ categories }: CategoryTableProps) {
   }
 
   return (
-    <div className="overflow-x-auto bg-gray-700 rounded-tr-lg shadow-lg border border-gray-600">
+    <div className="overflow-x-auto bg-gray-700 rounded-tr-lg rounded-bl-lg rounded-br-lg shadow-lg border border-gray-600">
       <table className="min-w-full divide-y divide-gray-600">
         <thead className="bg-gray-600">
           <tr>
