@@ -8,7 +8,7 @@ export const experimental_ppr = true;
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <ProtectedRoute>
-      <div className="flex h-screen flex-col md:flex-row md:overflow-hidden bg-gray-600">
+      <div className="flex h-screen flex-col md:flex-row md:overflow-hidden bg-gray-800">
         <div className="w-full flex-none md:w-64">
           <SideNav />
         </div>
