@@ -26,7 +26,7 @@ export default function SummaryTable({
   // Vis stadig "Tilføj" knap selvom der ikke er data
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white p-4 rounded shadow-xl text-stone-600">
+      <div className="bg-gray-100 p-4 rounded shadow-xl text-stone-600">
         <div className="flex justify-between items-center mb-2">
           <h2 className="text-xl font-bold">{title}</h2>
           {onAddIncome && (
@@ -46,7 +46,7 @@ export default function SummaryTable({
   }
 
   return (
-    <div className="bg-white mb-8 rounded shadow-xl text-stone-600 overflow-x-auto">
+    <div className="bg-gray-100 mb-8 rounded shadow-xl text-stone-600 overflow-x-auto">
       <div className="flex justify-between items-center my-4 mx-4">
         <h2 className="text-xl font-bold my-4 ms-4">{title}</h2>
         {onAddIncome && (
@@ -61,49 +61,49 @@ export default function SummaryTable({
         )}
       </div>
       <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+        <thead className="bg-gray-200">
           <tr>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              className="px-6 py-3 text-left text-xs font-semibold text-zinc-600 uppercase tracking-wider"
             >
               Dato
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
             >
               Beskrivelse
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
             >
               Kategori
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider"
             >
               Type
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+              className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider"
             >
               Beløb
             </th>
             {(onEditRow || onDeleteRow) && (
               <th
                 scope="col"
-                className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="px-3 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider"
               >
                 Handlinger
               </th>
             )}
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className="bg-gray-100 divide-y divide-gray-200">
           {data.map((item) => (
             <tr key={item.id}>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

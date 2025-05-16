@@ -46,7 +46,7 @@ const ReusableBarChart: React.FC<ReusableBarChartProps> = ({
   }
 
   return (
-    <div className="bg-white p-4 rounded shadow-md text-stone-600 h-96">
+    <div className="bg-gray-100 p-4 rounded shadow-md text-stone-600 h-96">
       {title && <h2 className="text-xl font-bold mb-4 text-center">{title}</h2>}
       <ResponsiveContainer width="100%" height="90%">
         <BarChart

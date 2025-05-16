@@ -16,7 +16,7 @@ export default function SummaryCard({
   return (
     <div
       className={clsx(
-        "bg-white p-4 rounded shadow-xl text-stone-600",
+        "bg-gray-100 p-4 rounded shadow-xl text-stone-600",
         className
       )}
     >
