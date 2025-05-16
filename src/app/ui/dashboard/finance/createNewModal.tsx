@@ -138,7 +138,7 @@ export default function AddIncomeModal({
       onClick={onClose}
     >
       <motion.div
-        className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md"
+        className="bg-gray-800 border-4 border-slate-600 p-6 rounded-lg shadow-xl w-full max-w-md"
         variants={modalVariants}
         onClick={(e) => e.stopPropagation()}
       >
@@ -148,7 +148,7 @@ export default function AddIncomeModal({
             <div>
               <label
                 htmlFor="date"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-200"
               >
                 Dato <span className="text-red-500">*</span>
               </label>
@@ -157,7 +157,7 @@ export default function AddIncomeModal({
                 id="date"
                 value={formData.date}
                 onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-400 focus:border-cyan-400 sm:text-sm"
                 disabled={isSaving}
                 required
               />
@@ -165,7 +165,7 @@ export default function AddIncomeModal({
             <div>
               <label
                 htmlFor="description"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-200"
               >
                 Beskrivelse
               </label>
@@ -174,14 +174,33 @@ export default function AddIncomeModal({
                 value={formData.description}
                 onChange={handleChange}
                 rows={3}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-400 focus:border-cyan-400 sm:text-sm"
                 disabled={isSaving}
               />
             </div>
             <div>
               <label
+                htmlFor="amount"
+                className="block text-sm font-medium text-gray-200"
+              >
+                Beløb (kr) <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                id="amount"
+                value={formData.amount}
+                onChange={handleChange}
+                step="0.01"
+                min="0.01"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-400 focus:border-cyan-400 sm:text-sm"
+                disabled={isSaving}
+                required
+              />
+            </div>
+            <div>
+              <label
                 htmlFor="categoryId"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-200"
               >
                 Kategori <span className="text-red-500">*</span>
               </label>
@@ -189,7 +208,7 @@ export default function AddIncomeModal({
                 id="categoryId"
                 value={formData.categoryId}
                 onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-gray-800 text-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-cyan-400 focus:border-cyan-400 sm:text-sm"
                 disabled={isSaving || categories.length === 0}
                 required
               >
@@ -201,30 +220,12 @@ export default function AddIncomeModal({
                 ))}
               </select>
               {categories.length === 0 && (
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-1 text-xs text-gray-200">
                   Ingen indkomstkategorier fundet.
                 </p>
               )}
             </div>
-            <div>
-              <label
-                htmlFor="amount"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Beløb (kr) <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="number"
-                id="amount"
-                value={formData.amount}
-                onChange={handleChange}
-                step="0.01"
-                min="0.01"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                disabled={isSaving}
-                required
-              />
-            </div>
+
             {error && (
               <p className="text-sm text-red-600 bg-red-100 p-2 rounded">
                 {error}
