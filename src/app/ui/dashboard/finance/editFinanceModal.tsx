@@ -142,7 +142,7 @@ export default function EditFinanceModal({
       onClick={onClose}
     >
       <motion.div
-        className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md"
+        className="bg-gray-800 border-4 border-slate-600 p-6 rounded-lg shadow-xl w-full max-w-md"
         variants={modalVariants}
         onClick={(e) => e.stopPropagation()}
       >
@@ -159,7 +159,7 @@ export default function EditFinanceModal({
             <div>
               <label
                 htmlFor="date"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-200"
               >
                 Dato
               </label>
@@ -168,14 +168,14 @@ export default function EditFinanceModal({
                 id="date"
                 value={formData.date}
                 onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-400 focus:border-cyan-400 sm:text-sm"
                 disabled={isSaving}
               />
             </div>
             <div>
               <label
                 htmlFor="description"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-200"
               >
                 Beskrivelse
               </label>
@@ -184,14 +184,14 @@ export default function EditFinanceModal({
                 value={formData.description}
                 onChange={handleChange}
                 rows={3}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-400 focus:border-cyan-400 sm:text-sm"
                 disabled={isSaving}
               />
             </div>
             <div>
               <label
                 htmlFor="amount"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-200"
               >
                 Beløb (kr)
               </label>
@@ -201,7 +201,7 @@ export default function EditFinanceModal({
                 value={formData.amount}
                 onChange={handleChange}
                 step="0.01"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cyan-400 focus:border-cyan-400 sm:text-sm"
                 disabled={isSaving}
               />
             </div>
@@ -209,7 +209,7 @@ export default function EditFinanceModal({
             <div>
               <label
                 htmlFor="categoryId"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-gray-200"
               >
                 Kategori
               </label>
@@ -217,7 +217,7 @@ export default function EditFinanceModal({
                 id="categoryId"
                 value={formData.categoryId}
                 onChange={handleChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-gray-800 text-gray-200 rounded-md shadow-sm focus:outline-none focus:ring-cyan-400 focus:border-cyan-400 sm:text-sm"
                 disabled={isSaving || !categories || categories.length === 0}
               >
                 {categories?.map((cat) => (
@@ -227,7 +227,7 @@ export default function EditFinanceModal({
                 ))}
               </select>
               {(!categories || categories.length === 0) && (
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="bg-gray-800 mt-1 text-xs text-gray-500 border-0 rounded-none">
                   Ingen kategorier tilgængelige.
                 </p>
               )}

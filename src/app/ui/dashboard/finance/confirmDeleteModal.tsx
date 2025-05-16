@@ -60,12 +60,12 @@ export default function ConfirmDeleteModal({
       onClick={onClose}
     >
       <motion.div
-        className="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm"
+        className="bg-gray-800 border-4 border-slate-600 p-6 rounded-lg shadow-xl w-full max-w-sm"
         variants={modalVariants}
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-lg font-semibold mb-4">Bekræft Sletning</h2>
-        <p className="mb-6 text-gray-700">
+        <p className="mb-6 text-gray-400">
           Er du sikker på, at du vil slette{" "}
           {itemName ? (
             <span className="font-medium">"{itemName}"</span>
@@ -89,7 +89,7 @@ export default function ConfirmDeleteModal({
             type="button"
             onClick={handleDelete}
             disabled={isDeleting}
-            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50 disabled:bg-red-300"
+            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700 disabled:opacity-50 disabled:bg-red-300"
           >
             {isDeleting ? "Sletter..." : "Ja, slet"}
           </button>
