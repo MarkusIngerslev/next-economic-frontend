@@ -7,7 +7,7 @@ import CategoryTable from "./categoryTable";
 interface CategoryTabsProps {
   categories: Category[];
   onEditCategory: (category: Category) => void;
-  // onDeleteCategory: (categoryId: string) => void;
+  onDeleteCategory: (categoryId: Category) => void;
 }
 
 type TabType = "income" | "expense";
@@ -15,8 +15,8 @@ type TabType = "income" | "expense";
 export default function CategoryTabs({
   categories,
   onEditCategory,
-}: // onDeleteCategory,
-CategoryTabsProps) {
+  onDeleteCategory,
+}: CategoryTabsProps) {
   const [activeTab, setActiveTab] = useState<TabType>("income");
 
   const filteredCategories = categories.filter(
@@ -63,8 +63,8 @@ CategoryTabsProps) {
       </div>
       <CategoryTable
         categories={filteredCategories}
-        onEditCategory={onEditCategory} // Send prop videre
-        // onDeleteCategory={onDeleteCategory} // Send prop videre
+        onEditCategory={onEditCategory}
+        onDeleteCategory={onDeleteCategory}
       />
     </div>
   );

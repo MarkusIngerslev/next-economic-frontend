@@ -1,14 +1,16 @@
 import { Category } from "@/services/api/category";
-import { PencilSquareIcon } from "@heroicons/react/24/outline";
+import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
 
 interface CategoryTableProps {
   categories: Category[];
   onEditCategory: (category: Category) => void;
+  onDeleteCategory: (category: Category) => void;
 }
 
 export default function CategoryTable({
   categories,
   onEditCategory,
+  onDeleteCategory,
 }: CategoryTableProps) {
   if (categories.length === 0) {
     return (
@@ -63,7 +65,14 @@ export default function CategoryTable({
                   <PencilSquareIcon className="h-5 w-5" />
                   <span className="sr-only">Rediger</span>
                 </button>
-                {/* Her kan du tilføje en slet knap senere */}
+                <button
+                  onClick={() => onDeleteCategory(category)}
+                  className="text-red-400 hover:text-red-300 p-1 rounded-md hover:bg-gray-500 transition-colors"
+                  title="Slet kategori"
+                >
+                  <TrashIcon className="h-5 w-5" />
+                  <span className="sr-only">Slet</span>
+                </button>
               </td>
             </tr>
           ))}

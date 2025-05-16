@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import CategoryTabs from "@/app/ui/dashboard/category/categoryTabs";
 import CreateCategoryModal from "@/app/ui/dashboard/category/createCategoryModal";
 import EditCategoryModal from "@/app/ui/dashboard/category/editCategoryModal";
+import DeleteCategoryModal from "@/app/ui/dashboard/category/deleteCategoryModal";
 import { getAllCategories, Category } from "@/services/api/category";
 import { PlusIcon } from "@heroicons/react/24/outline";
 import { AnimatePresence } from "framer-motion";
@@ -13,8 +14,12 @@ export default function Page() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // State for edit modal
-  const [categoryToEdit, setCategoryToEdit] = useState<Category | null>(null); // State for kategori der redigeres
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [categoryToEdit, setCategoryToEdit] = useState<Category | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(
+    null
+  );
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -52,7 +57,21 @@ export default function Page() {
   const handleCategoryUpdated = (updatedCategory: Category) => {
     fetchCategories();
     setIsEditModalOpen(false);
-    setCategoryToEdit(null); // Nulstil valgt kategori
+    setCategoryToEdit(null);
+  };
+
+  const handleOpenDeleteModal = (category: Category) => {
+    setCategoryToDelete(category);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCategoryDeleted = (deletedCategoryId: string) => {
+    setCategories((prevCategories) =>
+      prevCategories.filter((cat) => cat.id !== deletedCategoryId)
+    ); // Optimistisk opdatering
+    // fetchCategories(); // Eller gen-hent for konsistens
+    setIsDeleteModalOpen(false);
+    setCategoryToDelete(null);
   };
 
   if (isLoading && categories.length === 0) {
@@ -99,8 +118,8 @@ export default function Page() {
 
         <CategoryTabs
           categories={categories}
-          onEditCategory={handleOpenEditModal} // Send handler til tabs
-          // onDeleteCategory={}
+          onEditCategory={handleOpenEditModal}
+          onDeleteCategory={handleOpenDeleteModal}
         />
       </div>
 
@@ -113,19 +132,30 @@ export default function Page() {
             onCategoryCreated={handleCategoryCreated}
           />
         )}
-        {isEditModalOpen &&
-          categoryToEdit && ( // Sørg for at categoryToEdit ikke er null
-            <EditCategoryModal
-              key="edit-category-modal"
-              isOpen={isEditModalOpen}
-              onClose={() => {
-                setIsEditModalOpen(false);
-                setCategoryToEdit(null); // Nulstil også her for en sikkerheds skyld
-              }}
-              categoryToEdit={categoryToEdit}
-              onCategoryUpdated={handleCategoryUpdated}
-            />
-          )}
+        {isEditModalOpen && categoryToEdit && (
+          <EditCategoryModal
+            key="edit-category-modal"
+            isOpen={isEditModalOpen}
+            onClose={() => {
+              setIsEditModalOpen(false);
+              setCategoryToEdit(null);
+            }}
+            categoryToEdit={categoryToEdit}
+            onCategoryUpdated={handleCategoryUpdated}
+          />
+        )}
+        {isDeleteModalOpen && categoryToDelete && (
+          <DeleteCategoryModal
+            key="delete-category-modal"
+            isOpen={isDeleteModalOpen}
+            onClose={() => {
+              setIsDeleteModalOpen(false);
+              setCategoryToDelete(null);
+            }}
+            categoryToDelete={categoryToDelete}
+            onCategoryDeleted={handleCategoryDeleted}
+          />
+        )}
       </AnimatePresence>
     </main>
   );
