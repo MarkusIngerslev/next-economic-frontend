@@ -46,7 +46,7 @@ export default function Page() {
   if (isLoading && categories.length === 0) {
     // Vis kun fuldskærmsloader ved initial load
     return (
-      <main className="p-8 bg-gray-800 text-white min-h-screen flex justify-center items-center">
+      <main className="p-8 bg-gray-800 text-white  flex justify-center items-center">
         <p>Indlæser kategorier...</p>
       </main>
     );
@@ -55,14 +55,14 @@ export default function Page() {
   if (error && categories.length === 0) {
     // Vis kun fuldskærmsfejl hvis ingen kategorier er loadet
     return (
-      <main className="p-8 bg-gray-800 text-white min-h-screen flex justify-center items-center">
+      <main className="p-8 bg-gray-800 text-white  flex justify-center items-center">
         <p className="text-red-500">Fejl: {error}</p>
       </main>
     );
   }
 
   return (
-    <main className="relative border p-8 bg-gray-800 text-white min-h-screen">
+    <main className="relative border p-8 bg-gray-800 text-white">
       <div className="container mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-100">Kategorier</h1>
