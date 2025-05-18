@@ -44,13 +44,25 @@ export default function DeleteCategoryModal({
     try {
       await deleteCategory(categoryToDelete.id);
       onCategoryDeleted(categoryToDelete.id);
+      onClose(); // Luk modalen ved succes
     } catch (err) {
       console.error("Failed to delete category:", err);
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Ukendt fejl ved sletning af kategori."
-      );
+      if (err instanceof Error) {
+        try {
+          // Forsøg at parse fejlbeskeden som JSON
+          const parsedError = JSON.parse(err.message);
+          if (parsedError && parsedError.message) {
+            setError(parsedError.message);
+          } else {
+            setError("Ukendt fejl ved sletning af kategori.");
+          }
+        } catch (parseError) {
+          // Hvis parsing fejler, brug den oprindelige fejlbesked
+          setError(err.message);
+        }
+      } else {
+        setError("Ukendt fejl ved sletning af kategori.");
+      }
     } finally {
       setIsDeleting(false);
     }
