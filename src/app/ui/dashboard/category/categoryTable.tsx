@@ -14,7 +14,7 @@ export default function CategoryTable({
 }: CategoryTableProps) {
   if (categories.length === 0) {
     return (
-      <div className="bg-gray-700 p-6 rounded-lg shadow-md border border-gray-600">
+      <div className="bg-gray-700 p-6 rounded-tr-lg rounded-bl-lg rounded-br-lg shadow-md border border-gray-600">
         <p className="text-center text-gray-400">
           Ingen kategorier fundet for denne type.
         </p>
