@@ -1,8 +1,9 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { authService } from "@/services/api";
 import { motion } from "framer-motion";
 import { ArrowPathIcon } from "@heroicons/react/24/solid";
+import { useSearchParams, useRouter } from "next/navigation";
 
 export function LoginForm() {
   const { login } = useAuth();
@@ -11,6 +12,31 @@ export function LoginForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState("Log ind");
+  const [infoMessage, setInfoMessage] = useState<string | null>(null);
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  useEffect(() => {
+    const messageCode = searchParams.get("message");
+    if (messageCode) {
+      if (
+        messageCode === "session_expired_initial" ||
+        messageCode === "session_expired_interval"
+      ) {
+        setInfoMessage("Din session er udløbet. Log venligst ind igen.");
+      } else if (messageCode === "session_corrupt") {
+        setInfoMessage(
+          "Der opstod et problem med din session. Log venligst ind igen."
+        );
+      }
+      // Fjern query parameteren fra URL'en for at undgå at beskeden vises igen ved refresh
+      // Uden at forårsage en fuld navigation, hvilket kan være komplekst med App Router.
+      // En simpel måde er at lade den være, eller bruge router.replace med den nuværende path uden query.
+      // For nu lader vi den være, da det er den simpleste løsning.
+      // Hvis du vil fjerne den: router.replace('/login', { scroll: false }); (kan kræve justering)
+    }
+  }, [searchParams, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,6 +104,12 @@ export function LoginForm() {
       <h2 className="text-2xl font-bold mb-4 text-center text-gray-100">
         Log ind på din konto
       </h2>
+
+      {infoMessage && (
+        <p className="text-yellow-300 bg-yellow-700 bg-opacity-50 border border-yellow-500 p-3 rounded-md mb-4 text-sm text-center">
+          {infoMessage}
+        </p>
+      )}
 
       {error && (
         <p className="text-red-400 mb-4 text-sm text-center">{error}</p>
