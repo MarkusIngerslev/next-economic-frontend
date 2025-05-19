@@ -1,3 +1,38 @@
+// Helper function to set a cookie (client-side)
+export function setCookie(name: string, value: string, days: number) {
+  if (typeof window === "undefined") return;
+  let expires = "";
+  if (days) {
+    const date = new Date();
+    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+    expires = "; expires=" + date.toUTCString();
+  }
+  // For produktion over HTTPS, tilføj '; Secure' for øget sikkerhed.
+  // SameSite=Lax er en god standardindstilling.
+  document.cookie =
+    name + "=" + (value || "") + expires + "; path=/; SameSite=Lax";
+}
+
+// Helper function to get a cookie (client-side)
+export function getCookie(name: string): string | null {
+  if (typeof window === "undefined") return null;
+  const nameEQ = name + "=";
+  const ca = document.cookie.split(";");
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) === " ") c = c.substring(1, c.length);
+    if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+  }
+  return null;
+}
+
+// Helper function to delete a cookie (client-side)
+export function deleteCookie(name: string) {
+  if (typeof window === "undefined") return;
+  // For produktion over HTTPS, tilføj '; Secure'.
+  document.cookie = name + "=; Max-Age=-99999999; path=/; SameSite=Lax";
+}
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 /**
@@ -10,9 +45,8 @@ export const apiClient = {
   async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
 
-    // Hent token fra localStorage
-    const token =
-      typeof window !== "undefined" ? localStorage.getItem("jwt-token") : null;
+    // Hent token fra cookie
+    const token = typeof window !== "undefined" ? getCookie("jwt-token") : null;
 
     const defaultHeaders: HeadersInit = {
       "Content-Type": "application/json",

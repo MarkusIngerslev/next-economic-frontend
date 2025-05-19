@@ -1,15 +1,12 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { getCookie } from "@/services/api/base";
+import { authService } from "@/services/api/auth";
 import { AuthContextType } from "@/types";
+import { useRouter } from "next/navigation";
 
-const AuthContext = createContext<AuthContextType>({
-  token: null,
-  login: () => {},
-  logout: () => {},
-  isAuthReady: false,
-});
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
@@ -17,23 +14,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("jwt-token");
-    if (storedToken) {
-      setToken(storedToken);
+    // Læs token fra cookie ved initial load
+    const cookieToken = getCookie("jwt-token");
+    if (cookieToken) {
+      setToken(cookieToken);
     }
-    setIsAuthReady(true);
+    setIsAuthReady(true); // Marker at auth state er klar
   }, []);
 
   const login = (newToken: string) => {
-    localStorage.setItem("jwt-token", newToken);
     setToken(newToken);
     router.push("/dashboard");
   };
 
   const logout = () => {
-    localStorage.removeItem("jwt-token");
-    setToken(null);
-    router.push("/login");
+    setToken(null); // Ryd den interne state
+    authService.logout(); // Denne kalder deleteCookie("jwt-token") og omdirigerer
   };
 
   return (
@@ -43,4 +39,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};

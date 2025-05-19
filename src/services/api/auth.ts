@@ -1,4 +1,4 @@
-import { apiClient } from "./base";
+import { apiClient, setCookie, deleteCookie } from "./base";
 import { LoginRequest, LoginResponse } from "@/types";
 
 /**
@@ -16,6 +16,10 @@ export const authService = {
       body: JSON.stringify(data),
     });
 
+    if (response.access_token) {
+      // Gem token i en cookie i stedet for localStorage
+      setCookie("jwt-token", response.access_token, 7); // Gemmer i 7 dage
+    }
     return response.access_token;
   },
 
@@ -34,10 +38,11 @@ export const authService = {
   },
 
   /**
-   * Udfører logout ved at fjerne JWT token fra localStorage
+   * Udfører logout ved at fjerne JWT token fra cookie
    */
   logout: () => {
-    localStorage.removeItem("jwt-token"); // Adjust the key name if you're using a different one
+    // Slet token fra cookie
+    deleteCookie("jwt-token");
     window.location.href = "/login"; // Redirect to login page
   },
 };
