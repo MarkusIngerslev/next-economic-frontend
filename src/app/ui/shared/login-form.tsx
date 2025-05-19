@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { authService } from "@/services/api";
 import { motion } from "framer-motion";
+import { ArrowPathIcon } from "@heroicons/react/24/solid";
 
 export function LoginForm() {
   const { login } = useAuth();
@@ -9,23 +10,50 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("Log ind");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setStatusMessage("Logger ind...");
 
     try {
       const response = await authService.login(email, password);
 
+      // Kunstig forsinkelse for testning (f.eks. 2 sekunder)
+      // await new Promise((resolve) => setTimeout(resolve, 5000));
+
       if (!response) {
-        throw new Error("Login fejlede");
+        // Selvom authService-login sandsynligvis kaster en fejl ved HTTP-fejl,
+        // er dette en ekstra sikkerhedsforanstaltning.
+        throw new Error("Login fejlede: Uventet respons fra serveren.");
       }
 
-      login(response);
+      // Login var succesfult, token er modtaget.
+      // Opdater statusbeskeden for at indikere omdirigering.
+      // loading forbliver true, indtil komponenten unmountes ved omdirigering.
+      setStatusMessage("Login succesfuldt, omdirigerer...");
+      login(response); // Denne funktion i AuthContext bør håndtere omdirigeringen.
     } catch (err: any) {
-      setError(err.message || "Noget gik galt under login");
-    } finally {
+      let errorMessage = "Noget gik galt under login"; // Standard fejlbesked
+      if (err.message) {
+        try {
+          // Forsøg at parse fejlbeskeden som JSON
+          const errorResponse = JSON.parse(err.message);
+          if (errorResponse && errorResponse.message) {
+            errorMessage = errorResponse.message; // Brug 'message' feltet fra JSON
+          } else {
+            // Hvis JSON ikke har 'message', brug den oprindelige err.message
+            errorMessage = err.message;
+          }
+        } catch (parseError) {
+          // Hvis err.message ikke er valid JSON, brug den som den er
+          errorMessage = err.message;
+        }
+      }
+      setError(errorMessage);
+      setStatusMessage("Log ind");
       setLoading(false);
     }
   };
@@ -63,6 +91,7 @@ export function LoginForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          disabled={loading}
         />
         <input
           type="password"
@@ -71,13 +100,17 @@ export function LoginForm() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          disabled={loading}
         />
         <button
           type="submit"
           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-md transition disabled:opacity-60"
           disabled={loading}
         >
-          {loading ? "Logger ind..." : "Log ind"}
+          {loading && (
+            <ArrowPathIcon className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
+          )}
+          {statusMessage}
         </button>
       </div>
     </motion.form>
