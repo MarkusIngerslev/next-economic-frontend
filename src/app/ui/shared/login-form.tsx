@@ -61,7 +61,7 @@ export function LoginForm() {
   return (
     <motion.form
       onSubmit={handleSubmit}
-      className="bg-gradient-to-tl from-gray-100 to-white p-10 rounded-2xl shadow-lg w-full max-w-sm border"
+      className="bg-gray-700 p-10 rounded-2xl shadow-xl w-full max-w-sm border border-gray-600"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
@@ -75,19 +75,19 @@ export function LoginForm() {
         />
       </div>
 
-      <h2 className="text-2xl font-bold mb-4 text-center text-stone-800">
+      <h2 className="text-2xl font-bold mb-4 text-center text-gray-100">
         Log ind på din konto
       </h2>
 
       {error && (
-        <p className="text-red-500 mb-4 text-sm text-center">{error}</p>
+        <p className="text-red-400 mb-4 text-sm text-center">{error}</p>
       )}
 
-      <div className="space-y-4 text-gray-500">
+      <div className="space-y-4">
         <input
           type="email"
           placeholder="Email"
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          className="w-full px-4 py-2 border border-gray-500 bg-gray-600 text-gray-100 placeholder-gray-300 rounded-md focus:ring-2 focus:ring-sky-400 focus:border-sky-400 focus:outline-none" // Ændret input styling
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -96,7 +96,7 @@ export function LoginForm() {
         <input
           type="password"
           placeholder="Password"
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          className="w-full px-4 py-2 border border-gray-500 bg-gray-600 text-gray-100 placeholder-gray-300 rounded-md focus:ring-2 focus:ring-sky-400 focus:border-sky-400 focus:outline-none" // Ændret input styling
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -104,7 +104,7 @@ export function LoginForm() {
         />
         <button
           type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-md transition disabled:opacity-60"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-md transition disabled:opacity-60 flex items-center justify-center" // Knapfarve bibeholdt som accent
           disabled={loading}
         >
           {loading && (
