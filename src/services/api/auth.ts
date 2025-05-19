@@ -39,10 +39,14 @@ export const authService = {
 
   /**
    * Udfører logout ved at fjerne JWT token fra cookie
+   * @param message Valgfri besked-kode der skal vises på login-siden (f.eks. "session_expired")
    */
-  logout: () => {
-    // Slet token fra cookie
+  logout: (message?: string) => {
     deleteCookie("jwt-token");
-    window.location.href = "/login"; // Redirect to login page
+    let redirectUrl = "/login";
+    if (message) {
+      redirectUrl += `?message=${encodeURIComponent(message)}`;
+    }
+    window.location.href = redirectUrl; // Redirect to login page
   },
 };
