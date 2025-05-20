@@ -2,7 +2,10 @@
 
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { getUserProfile, UserProfile, getAllUsers } from "@/services/api/user"; // Sørg for at getAllUsers er importeret
+import { getUserProfile, UserProfile, getAllUsers } from "@/services/api/user";
+import EditUserRolesModal from "@/app/ui/dashboard/admin/editUserRolesModal";
+import { PencilSquareIcon } from "@heroicons/react/24/outline";
+import { AnimatePresence } from "framer-motion";
 
 export default function AdminPage() {
   const { token } = useAuth();
@@ -10,6 +13,12 @@ export default function AdminPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+
+  // State for modal
+  const [isEditRolesModalOpen, setIsEditRolesModalOpen] = useState(false);
+  const [userToEditRoles, setUserToEditRoles] = useState<UserProfile | null>(
+    null
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -62,6 +71,22 @@ export default function AdminPage() {
     fetchData();
   }, [token]);
 
+  const handleOpenEditRolesModal = (user: UserProfile) => {
+    setUserToEditRoles(user);
+    setIsEditRolesModalOpen(true);
+  };
+
+  const handleCloseEditRolesModal = () => {
+    setIsEditRolesModalOpen(false);
+    setUserToEditRoles(null);
+  };
+
+  const handleUserRolesUpdated = (updatedUser: UserProfile) => {
+    setAllUsers((prevUsers) =>
+      prevUsers.map((user) => (user.id === updatedUser.id ? updatedUser : user))
+    );
+  };
+
   if (isLoading) {
     return (
       <main className="p-8 text-center text-gray-100">
@@ -108,6 +133,9 @@ export default function AdminPage() {
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider hidden md:table-cell">
                     Bruger ID
                   </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">
+                    <span className="sr-only">Handlinger</span>
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-600">
@@ -128,6 +156,16 @@ export default function AdminPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 hidden md:table-cell">
                       {user.id}
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <button
+                        onClick={() => handleOpenEditRolesModal(user)}
+                        className="text-cyan-400 hover:text-cyan-300 p-1 rounded-md hover:bg-gray-600 transition-colors flex items-center"
+                        title="Rediger roller"
+                      >
+                        <PencilSquareIcon className="h-5 w-5 mr-1" />
+                        Rediger Roller
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -135,6 +173,18 @@ export default function AdminPage() {
           </div>
         )}
       </div>
+
+      {/* Sørg for at AnimatePresence omgiver modalen hvis du bruger exit animationer i modalen */}
+      <AnimatePresence>
+        {isEditRolesModalOpen && userToEditRoles && (
+          <EditUserRolesModal
+            isOpen={isEditRolesModalOpen}
+            onClose={handleCloseEditRolesModal}
+            userToEdit={userToEditRoles}
+            onUserRolesUpdated={handleUserRolesUpdated}
+          />
+        )}
+      </AnimatePresence>
     </main>
   );
 }
