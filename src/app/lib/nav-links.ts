@@ -1,10 +1,22 @@
 import {
   HomeIcon,
-  TagIcon,
+  UserCircleIcon,
   DocumentDuplicateIcon,
   CreditCardIcon,
-  UserCircleIcon,
+  TagIcon,
+  UserGroupIcon,
 } from "@heroicons/react/24/outline";
+
+export interface LinkDefinition {
+  name: string;
+  href: string;
+  icon: React.ForwardRefExoticComponent<
+    React.PropsWithoutRef<React.SVGProps<SVGSVGElement>> & {
+      title?: string;
+      titleId?: string;
+    } & React.RefAttributes<SVGSVGElement>
+  >;
+}
 
 export const links = [
   {
@@ -35,6 +47,6 @@ export const links = [
   {
     name: "Admin",
     href: "/dashboard/admin",
-    icon: TagIcon,
+    icon: UserGroupIcon,
   },
 ];
