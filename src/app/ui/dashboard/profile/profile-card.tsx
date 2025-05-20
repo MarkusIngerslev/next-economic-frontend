@@ -128,9 +128,9 @@ export default function ProfileCard() {
         <div className="p-4 text-gray-600">No user data available.</div>
       ) : (
         <div
-          className={`bg-slate-300 shadow rounded-lg p-6 mt-4 transition-filter duration-300 ${
-            isModalOpen ? "blur-sm" : ""
-          } ${isSaving ? "opacity-75" : ""}`} // Gør kortet lidt gennemsigtigt under save
+          className={`bg-gray-700 shadow-lg rounded-lg p-6 mt-4 transition-filter duration-300 ${
+            isModalOpen ? "blur-xs" : ""
+          } ${isSaving ? "opacity-75" : ""}`}
         >
           {/* ... Profile display code ... */}
           <div className="flex items-center mb-6">
@@ -141,60 +141,62 @@ export default function ProfileCard() {
                 className="w-20 h-20 rounded-full mr-4 object-cover"
               />
             ) : (
-              <UserCircleIcon className="w-20 h-20 text-gray-500 mr-4" />
+              <UserCircleIcon className="w-20 h-20 text-gray-400 mr-4" />
             )}
             <div>
-              <h2 className="text-xl font-semibold">User</h2>
-              <p className="text-gray-600">
+              <h2 className="text-xl font-semibold text-gray-100">User</h2>
+              <p className="text-gray-300">
                 {userData.firstName} {userData.lastName}
               </p>
             </div>
           </div>
           <div className="grid gap-4">
-            <div className="border-b-3 pb-4">
-              <h3 className="font-medium mb-2 px-2 font-semibold">
+            <div className="border-b-2 border-gray-600 pb-4">
+              <h3 className="font-medium mb-2 px-2 font-semibold text-gray-200">
                 Personlig Information
               </h3>
               <div className="mb-4 px-4">
-                <p className="text-gray-600">
+                <p className="text-gray-300">
                   Alder: {calculateAge(userData.birthDate || "N/A")}
                 </p>
-                <p className="text-gray-600">
+                <p className="text-gray-300">
                   Fødselsdag : {formatDate(userData.birthDate || "N/A")}
                 </p>
 
-                <fieldset className="border-y-1 px-2 pb-2 mt-2">
-                  <legend className="font-semibold">Address</legend>
-                  <p className="text-gray-600">
+                <fieldset className="border-y border-gray-600 px-2 pb-2 mt-2">
+                  <legend className="font-semibold text-gray-200">
+                    Address
+                  </legend>
+                  <p className="text-gray-300">
                     Address: {userData.address || "N/A"}
                   </p>
-                  <p className="text-gray-600">By: {userData.city || "N/A"}</p>
-                  <p className="text-gray-600">
+                  <p className="text-gray-300">By: {userData.city || "N/A"}</p>
+                  <p className="text-gray-300">
                     Post nummer: {userData.postalCode || "N/A"}
                   </p>
-                  <p className="text-gray-600">
+                  <p className="text-gray-300">
                     Land: {userData.country || "N/A"}
                   </p>
                 </fieldset>
               </div>
 
-              <h3 className="font-medium mb-2 px-2 font-semibold">
+              <h3 className="font-medium mb-2 px-2 font-semibold text-gray-200">
                 Kontakt Information
               </h3>
               <div className="mb-4 px-4">
-                <p className="text-gray-600">
+                <p className="text-gray-300">
                   Email: {userData.email || "N/A"}
                 </p>
-                <p className="text-gray-600">
+                <p className="text-gray-300">
                   Telefonnummer: {userData.phone || "N/A"}
                 </p>
               </div>
 
-              <h3 className="font-medium mb-2 px-2 font-semibold">
+              <h3 className="font-medium mb-2 px-2 font-semibold text-gray-200">
                 Relevant Information
               </h3>
               <div className=" px-4">
-                <p className="text-gray-600">
+                <p className="text-gray-300">
                   Roller: {userData.roles ? userData.roles.join(", ") : "N/A"}
                 </p>
               </div>
@@ -202,13 +204,13 @@ export default function ProfileCard() {
             <div>
               <button
                 onClick={handleOpenModal}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
-                disabled={isSaving || isLoading} // Deaktiver også hvis data hentes
+                className="bg-sky-500 text-white px-4 py-2 rounded hover:bg-sky-600 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-opacity-75"
+                disabled={isSaving || isLoading} 
               >
                 {isSaving ? "Gemmer..." : "Ændre profile oplysninger"}
               </button>
               {saveError && (
-                <p className="text-red-500 text-sm mt-2">{saveError}</p>
+                <p className="text-red-400 text-sm mt-2">{saveError}</p>
               )}
             </div>
           </div>

@@ -125,15 +125,17 @@ export default function EditProfileModal({
       onClick={onClose}
     >
       <motion.div
-        className="bg-white p-6 rounded-lg shadow-xl w-full max-w-md"
+        className="bg-gray-800 border-1 border-gray-600 p-6 rounded-lg shadow-xl w-full max-w-md text-gray-200"
         variants={modalVariants}
         initial="hidden"
         animate="visible"
         exit="exit"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-xl font-semibold mb-4">Opdater Profil</h2>
-        {/* Brug onSubmit på formen hvis du vil have Enter til at submitte */}
+        <h2 className="text-xl font-semibold mb-4 text-gray-100">
+          Opdater Profil
+        </h2>
+
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -141,15 +143,10 @@ export default function EditProfileModal({
           }}
         >
           <div className="flex flex-col mb-4 space-y-2">
-            {" "}
-            {/* Tilføjet space-y-2 for lidt luft */}
-            {/* Personlige oplysninger */}
             <div className="flex flex-row items-center">
-              {" "}
-              {/* Tilføjet items-center */}
               <label
                 htmlFor="firstName"
-                className="block w-32 text-start text-sm font-medium text-gray-700 mr-2" /* Justeret bredde og margin */
+                className="block w-32 text-start text-sm font-medium text-gray-300 mr-2"
               >
                 Fornavn
               </label>
@@ -157,14 +154,14 @@ export default function EditProfileModal({
                 type="text"
                 id="firstName"
                 value={formData.firstName || ""} // Brug state value
-                onChange={handleChange} // Tilføj onChange
-                className="mt-1 block flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" // Brug flex-grow
+                onChange={handleChange}
+                className="mt-1 block flex-grow px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-sky-400 focus:border-sky-400 sm:text-sm text-gray-100 placeholder-gray-400"
               />
             </div>
             <div className="flex flex-row items-center">
               <label
                 htmlFor="lastName"
-                className="block w-32 text-start text-sm font-medium text-gray-700 mr-2"
+                className="block w-32 text-start text-sm font-medium text-gray-300 mr-2"
               >
                 Efternavn
               </label>
@@ -173,13 +170,13 @@ export default function EditProfileModal({
                 id="lastName"
                 value={formData.lastName || ""}
                 onChange={handleChange}
-                className="mt-1 block flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block flex-grow px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-sky-400 focus:border-sky-400 sm:text-sm text-gray-100 placeholder-gray-400"
               />
             </div>
             <div className="flex flex-row items-center">
               <label
                 htmlFor="email"
-                className="block w-32 text-start text-sm font-medium text-gray-700 mr-2"
+                className="block w-32 text-start text-sm font-medium text-gray-300 mr-2"
               >
                 Email
               </label>
@@ -188,44 +185,44 @@ export default function EditProfileModal({
                 id="email"
                 value={formData.email || ""}
                 onChange={handleChange}
-                className="mt-1 block flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block flex-grow px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-sky-400 focus:border-sky-400 sm:text-sm text-gray-100 placeholder-gray-400"
               />
             </div>
             <div className="flex flex-row items-center">
               <label
                 htmlFor="phone"
-                className="block w-32 text-start text-sm font-medium text-gray-700 mr-2"
+                className="block w-32 text-start text-sm font-medium text-gray-300 mr-2"
               >
                 Telefonnummer
               </label>
               <input
-                type="text" // Brug tel for bedre mobil support
+                type="text"
                 id="phone"
                 value={formData.phone || ""}
                 onChange={handleChange}
-                className="mt-1 block flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block flex-grow px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-sky-400 focus:border-sky-400 sm:text-sm text-gray-100 placeholder-gray-400"
               />
             </div>
             <div className="flex flex-row items-center">
               <label
                 htmlFor="birthDate"
-                className="block w-32 text-start text-sm font-medium text-gray-700 mr-2"
+                className="block w-32 text-start text-sm font-medium text-gray-300 mr-2"
               >
                 Fødselsdato
               </label>
               <input
                 type="date"
                 id="birthDate"
-                value={formData.birthDate || ""} // Format er YYYY-MM-DD
+                value={formData.birthDate || ""}
                 onChange={handleChange}
-                className="mt-1 block flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block flex-grow px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-sky-400 focus:border-sky-400 sm:text-sm text-gray-100 placeholder-gray-400"
               />
             </div>
             {/* Adresse */}
             <div className="flex flex-row items-center">
               <label
                 htmlFor="address"
-                className="block w-32 text-start text-sm font-medium text-gray-700 mr-2"
+                className="block w-32 text-start text-sm font-medium text-gray-300 mr-2"
               >
                 Adresse
               </label>
@@ -234,13 +231,13 @@ export default function EditProfileModal({
                 id="address"
                 value={formData.address || ""}
                 onChange={handleChange}
-                className="mt-1 block flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block flex-grow px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-sky-400 focus:border-sky-400 sm:text-sm text-gray-100 placeholder-gray-400"
               />
             </div>
             <div className="flex flex-row items-center">
               <label
                 htmlFor="city"
-                className="block w-32 text-start text-sm font-medium text-gray-700 mr-2"
+                className="block w-32 text-start text-sm font-medium text-gray-300 mr-2"
               >
                 By
               </label>
@@ -249,13 +246,13 @@ export default function EditProfileModal({
                 id="city"
                 value={formData.city || ""}
                 onChange={handleChange}
-                className="mt-1 block flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block flex-grow px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-sky-400 focus:border-sky-400 sm:text-sm text-gray-100 placeholder-gray-400"
               />
             </div>
             <div className="flex flex-row items-center">
               <label
                 htmlFor="postalCode"
-                className="block w-32 text-start text-sm font-medium text-gray-700 mr-2"
+                className="block w-32 text-start text-sm font-medium text-gray-300 mr-2"
               >
                 Postnummer
               </label>
@@ -264,13 +261,13 @@ export default function EditProfileModal({
                 id="postalCode"
                 value={formData.postalCode || ""}
                 onChange={handleChange}
-                className="mt-1 block flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block flex-grow px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-sky-400 focus:border-sky-400 sm:text-sm text-gray-100 placeholder-gray-400"
               />
             </div>
             <div className="flex flex-row items-center">
               <label
                 htmlFor="country"
-                className="block w-32 text-start text-sm font-medium text-gray-700 mr-2"
+                className="block w-32 text-start text-sm font-medium text-gray-300 mr-2"
               >
                 Land
               </label>
@@ -279,14 +276,14 @@ export default function EditProfileModal({
                 id="country"
                 value={formData.country || ""}
                 onChange={handleChange}
-                className="mt-1 block flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block flex-grow px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-sky-400 focus:border-sky-400 sm:text-sm text-gray-100 placeholder-gray-400"
               />
             </div>
             {/* Upload billede url */}
             <div className="flex flex-row items-center">
               <label
                 htmlFor="profilePictureUrl"
-                className="block w-32 text-start text-sm font-medium text-gray-700 mr-2"
+                className="block w-32 text-start text-sm font-medium text-gray-300 mr-2"
               >
                 Profilbillede URL
               </label>
@@ -295,7 +292,7 @@ export default function EditProfileModal({
                 id="profilePictureUrl"
                 value={formData.profilePictureUrl || ""}
                 onChange={handleChange}
-                className="mt-1 block flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block flex-grow px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-sky-400 focus:border-sky-400 sm:text-sm text-gray-100 placeholder-gray-400"
               />
             </div>
           </div>
@@ -304,13 +301,13 @@ export default function EditProfileModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
+              className="px-4 py-2 bg-gray-600 text-gray-200 rounded hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-opacity-75"
             >
               Annuller
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="px-4 py-2 bg-sky-500 text-white rounded hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:ring-opacity-75"
             >
               Gem ændringer
             </button>
