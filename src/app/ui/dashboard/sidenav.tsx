@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import NavLinks from "@/app/ui/dashboard/nav-links";
+import NavLinks from "@/app/ui/dashboard/nav-menu";
 import { PowerIcon } from "@heroicons/react/24/outline";
 import { authService } from "@/services/api";
 
