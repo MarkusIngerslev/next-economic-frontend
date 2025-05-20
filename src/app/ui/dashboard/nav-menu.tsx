@@ -29,14 +29,14 @@ export default function NavLinks() {
             setVisibleLinks(allLinks);
           } else {
             setVisibleLinks(
-              allLinks.filter((link) => link.name.toLowerCase() !== "Admin")
+              allLinks.filter((link) => link.name.toLowerCase() !== "admin")
             );
           }
         } catch (error) {
           console.error("Failed to fetch user profile for NavLinks:", error);
           // Vis ikke admin linket ved fejl
           setVisibleLinks(
-            allLinks.filter((link) => link.name.toLowerCase() !== "Admin")
+            allLinks.filter((link) => link.name.toLowerCase() !== "admin")
           );
         } finally {
           setIsLoadingProfile(false);
@@ -44,7 +44,7 @@ export default function NavLinks() {
       } else {
         // Hvis der ikke er token, vis ikke admin linket og stop loading
         setVisibleLinks(
-          allLinks.filter((link) => link.name.toLowerCase() !== "Admin")
+          allLinks.filter((link) => link.name.toLowerCase() !== "admin")
         );
         setIsLoadingProfile(false);
       }
