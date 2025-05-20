@@ -56,3 +56,24 @@ export async function updateUserProfile(
     throw error;
   }
 }
+
+/**
+ * Henter alle brugerprofiler fra backend (kun for admin).
+ * @returns Et array af UserProfile objekter.
+ */
+export async function getAllUsers(): Promise<UserProfile[]> {
+  try {
+    // Vigtigt: Du skal oprette et endpoint i din backend, f.eks. `/users/all` eller `/admin/users`.
+    // Dette endpoint skal være beskyttet, så kun administratorer kan tilgå det.
+    // Backend skal returnere en liste af brugere.
+    return await apiClient.request<UserProfile[]>("/users", {
+      // Dette endpoint er et eksempel.
+      method: "GET",
+      credentials: "include", // For at inkludere cookies (JWT token) i anmodningen
+    });
+  } catch (error) {
+    console.error("Error fetching all users:", error);
+    // Overvej at kaste en mere specifik fejl baseret på statuskode, hvis muligt
+    throw error; // Kaster fejlen videre, så den kan håndteres i UI laget
+  }
+}
