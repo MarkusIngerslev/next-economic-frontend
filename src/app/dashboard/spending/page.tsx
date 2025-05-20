@@ -42,7 +42,7 @@ export default function Page() {
   // State til at holde data, fejl og loading status
   const [expenseData, setExpenseData] = useState<ExpenseRecord[]>([]);
   const [fetchError, setFetchError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true); // Start i loading state
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // State edit modal
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -108,7 +108,7 @@ export default function Page() {
   const handleOpenEditModal = (record: ExpenseRecord) => {
     setSelectedExpenseRecord(record);
     setIsEditModalOpen(true);
-    setSaveError(null); // Nulstil fejl fra andre handlinger
+    setSaveError(null);
   };
 
   const handleCloseEditModal = () => {
@@ -120,7 +120,7 @@ export default function Page() {
   const handleOpenDeleteModal = (record: ExpenseRecord) => {
     setRecordToDelete(record);
     setIsDeleteModalOpen(true);
-    setSaveError(null); // Nulstil fejl fra andre handlinger
+    setSaveError(null);
   };
 
   const handleCloseDeleteModal = () => {
@@ -130,7 +130,7 @@ export default function Page() {
 
   // Add Expense Modal Handlers
   const handleOpenAddExpenseModal = () => {
-    setSaveError(null); // Nulstil fejl fra andre handlinger
+    setSaveError(null);
     setIsAddExpenseModalOpen(true);
   };
 
@@ -188,8 +188,7 @@ export default function Page() {
       console.error("Failed to delete expense record:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Ukendt fejl ved sletning.";
-      // setSaveError(`Kunne ikke slette post: ${errorMessage}`);
-      throw error; // Hvis ConfirmDeleteModal skal håndtere sin egen fejlvisning
+      throw error;
     } finally {
       setIsDeleting(false);
     }
@@ -224,7 +223,6 @@ export default function Page() {
     return (
       <main className="container mx-auto p-8 text-center">
         <p>Henter data...</p>
-        {/* Du kan tilføje en mere avanceret spinner/loading komponent her */}
       </main>
     );
   }
@@ -299,7 +297,7 @@ export default function Page() {
   // ###########################################
 
   return (
-    <main className="container mx-auto p-8 border relative">
+    <main className="container mx-auto p-8 relative">
       {/* Budget page content */}
       <div>
         <h1 className="text-2xl font-bold mb-6">Overblik over indtægt</h1>
@@ -308,11 +306,7 @@ export default function Page() {
 
       {/* små oplysnings cards */}
       {/* Hovedcontainer: 3/4 bredde, centreret */}
-      <div className="w-3/4 mx-auto mb-8 border-1">
-        <h2 className="text-xl font-bold mb-4 text-start">
-          Budget Oplysninger
-        </h2>
-
+      <div className="w-3/4 mx-auto mb-8 ">
         {/* Flex container til kort */}
         <div className="flex flex-wrap justify-center mb-4 gap-4">
           {/* SummaryCards placeres direkte i flex containeren */}

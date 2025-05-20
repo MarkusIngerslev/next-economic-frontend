@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 export default function Page() {
   return (
-    <main className="container mx-auto p-8 border">
+    <main className="container mx-auto p-8 ">
       <div>
         <h1 className="text-3xl font-bold mb-6">Profile</h1>
         <ProfileCard />
