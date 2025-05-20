@@ -2,32 +2,85 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 export default function Home() {
+  const [showHeader, setShowHeader] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const headerScrollThreshold = 70; // Hvor langt ned man skal scrolle før header skjules (ca. headers højde)
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY < lastScrollY) {
+        // Scroller op
+        setShowHeader(true);
+      } else {
+        // Scroller ned
+        if (currentScrollY > headerScrollThreshold) {
+          setShowHeader(false);
+        }
+      }
+
+      // Altid vis header hvis man er helt i toppen
+      if (currentScrollY < 10) {
+        setShowHeader(true);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [lastScrollY]);
+
   return (
-    <main className="min-h-screen bg-gray-800 text-gray-800">
+    <main className="min-h-screen bg-gray-800 text-gray-100">
+      {/* Header med Log ind knap */}
+      <motion.header
+        className="fixed top-0 left-0 w-full z-50 bg-gray-800 shadow-md py-4 px-4 sm:px-6 lg:px-8"
+        initial={{ y: 0 }}
+        animate={{ y: showHeader ? 0 : "-100%" }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+      >
+        <div className="container mx-auto flex justify-end items-center">
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Link
+              href="/login"
+              className="bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out shadow"
+            >
+              Log ind
+            </Link>
+          </motion.div>
+        </div>
+      </motion.header>
+
       {/* Hero Section */}
-      <section className="flex items-center justify-center px-4 py-16 md:py-24">
-        <div className="max-w-2xl w-full flex flex-col items-center text-center bg-gradient-to-tl from-gray-100 to-white shadow-xl rounded-2xl p-8 border">
-          <div className="w-full mb-6">
+      <section className="min-h-screen flex flex-col items-center justify-center text-center px-4 py-12 md:py-16">
+        <div className="bg-gray-700 p-6 md:p-8 rounded-xl shadow-2xl max-w-2xl w-full">
+          <div className="w-full mb-6 max-w-xs sm:max-w-sm md:max-w-md mx-auto">
             <img
               src="/personal-finance-illustration.svg"
               alt="Økonomi illustration"
               className="mx-auto w-48 h-48"
             />
           </div>
-          <h1 className="text-4xl font-extrabold text-gray-800 mb-4">
+          <h1 className="text-4xl font-extrabold text-white mb-4">
             Velkommen til din økonomioversigt
           </h1>
-          <p className="text-gray-600 mb-6 text-lg">
+          <p className="text-gray-300 mb-8 text-lg max-w-xl mx-auto">
             Få overblik over din indtægt, dit forbrug og dine vaner.
           </p>
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Link
-              href="/login"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-full transition duration-200 shadow"
+              href="/register"
+              className="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-8 rounded-full transition duration-200 shadow-lg text-lg"
             >
-              Log ind
+              Opret Gratis Konto
             </Link>
           </motion.div>
         </div>
@@ -75,7 +128,7 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
+            viewport={{ amount: 0.3 }}
             transition={{ duration: 0.7 }}
             className="md:order-first" // Sikrer billedet er til venstre på medium skærme og op
           >
