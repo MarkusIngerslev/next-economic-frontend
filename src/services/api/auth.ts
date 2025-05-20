@@ -1,6 +1,14 @@
 import { apiClient, setCookie, deleteCookie } from "./base";
 import { LoginRequest, LoginResponse } from "@/types";
 
+// Tilføj en interface for registreringsanmodningen
+interface RegisterRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+}
+
 /**
  * Auth service til håndtering af authentication-relaterede API kald
  */
@@ -25,16 +33,28 @@ export const authService = {
 
   /**
    * Registrerer en ny bruger
+   * @returns JWT token som string
    */
   register: async (
+    firstName: string,
+    lastName: string,
     email: string,
-    password: string,
-    name: string
+    password: string
   ): Promise<string> => {
-    return apiClient.request<string>("/auth/register", {
+    const data: RegisterRequest = { firstName, lastName, email, password };
+    // Antager at backend returnerer token direkte som en streng
+    const token = await apiClient.request<string>("/auth/register", {
       method: "POST",
-      body: JSON.stringify({ email, password, name }),
+      body: JSON.stringify(data),
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
+
+    if (token) {
+      setCookie("jwt-token", token, 7); // Gemmer i 7 dage, ligesom login
+    }
+    return token;
   },
 
   /**
