@@ -45,7 +45,7 @@ export const links = [
     icon: TagIcon,
   },
   {
-    name: "Admin",
+    name: "Admin panel",
     href: "/dashboard/admin",
     icon: UserGroupIcon,
   },
