@@ -1,45 +1,9 @@
 "use client";
 
-import {
-  HomeIcon,
-  TagIcon,
-  DocumentDuplicateIcon,
-  CreditCardIcon,
-  UserCircleIcon,
-} from "@heroicons/react/24/outline";
+import { links } from "@/app/lib/nav-links";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
-
-// Map of links to be displayed in the sidebar navigation
-// Depending on the size of the application, this would be stored in a database.
-const links = [
-  {
-    name: "Forside",
-    href: "/dashboard",
-    icon: HomeIcon,
-  },
-  {
-    name: "Min profil",
-    href: "/dashboard/profile",
-    icon: UserCircleIcon,
-  },
-  {
-    name: "Indtægter",
-    href: "/dashboard/budget",
-    icon: DocumentDuplicateIcon,
-  },
-  {
-    name: "Udgifter",
-    href: "/dashboard/spending",
-    icon: CreditCardIcon,
-  },
-  {
-    name: "Kategorier",
-    href: "/dashboard/category",
-    icon: TagIcon,
-  },
-];
 
 export default function NavLinks() {
   const pathname = usePathname();
