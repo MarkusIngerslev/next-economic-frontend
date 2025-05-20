@@ -39,7 +39,7 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
+            viewport={{ amount: 0.3 }}
             transition={{ duration: 0.7 }}
             className="text-gray-700"
           >
@@ -57,7 +57,7 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
+            viewport={{ amount: 0.3 }}
             transition={{ duration: 0.7 }}
           >
             <img
@@ -88,7 +88,7 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
+            viewport={{ amount: 0.3 }}
             transition={{ duration: 0.7 }}
             className="text-gray-700 md:order-last" // Sikrer teksten er til højre
           >
@@ -111,7 +111,7 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
+            viewport={{ amount: 0.3 }}
             transition={{ duration: 0.7 }}
           >
             <h2 className="text-3xl font-bold mb-6">
@@ -127,7 +127,7 @@ export default function Home() {
               className="inline-block"
             >
               <Link
-                href="/register" // Antager du har en /register side
+                href="/register"
                 className="bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-8 rounded-full transition duration-200 shadow-lg"
               >
                 Opret Gratis Konto
