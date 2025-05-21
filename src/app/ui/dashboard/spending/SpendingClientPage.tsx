@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { AnimatePresence } from "framer-motion";
 
 // Komponenter
@@ -45,6 +45,7 @@ export default function SpendingClientPage() {
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showMonthlyGraphData, setShowMonthlyGraphData] = useState(false);
 
   // State edit modal
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -69,6 +70,9 @@ export default function SpendingClientPage() {
   // Udled måned og år fra selectedDate
   const _selectedYear = selectedDate.getFullYear();
   const _selectedMonth = selectedDate.getMonth();
+  const _selectedMonthName = selectedDate.toLocaleString("da-DK", {
+    month: "long",
+  });
 
   // ####################################
   // ## Hent data fra backend ved load ##
@@ -100,6 +104,74 @@ export default function SpendingClientPage() {
   useEffect(() => {
     fetchAllData();
   }, []);
+
+  // ####################################################################
+  // ## Beregn data til grafer - SKAL VÆRE FØR isLoading check ##
+  // ####################################################################
+
+  // Forbered data til cirkeldiagram baseret på toggle
+  const formattedExpensePieData = useMemo(() => {
+    let filteredForDate = expenseData;
+    if (showMonthlyGraphData) {
+      filteredForDate = expenseData.filter(
+        (record) =>
+          new Date(record.date).getFullYear() === _selectedYear &&
+          new Date(record.date).getMonth() === _selectedMonth
+      );
+    } else {
+      filteredForDate = expenseData.filter(
+        (record) => new Date(record.date).getFullYear() === _selectedYear
+      );
+    }
+
+    const pieChartData = filteredForDate
+      .filter((record) => record.category.type === "expense")
+      .reduce((acc, record) => {
+        const categoryName = record.category.name;
+        const amount = parseFloat(record.amount);
+        acc[categoryName] = (acc[categoryName] || 0) + amount;
+        return acc;
+      }, {} as Record<string, number>);
+    return Object.entries(pieChartData).map(([name, value]) => ({
+      name,
+      value,
+    }));
+  }, [expenseData, _selectedYear, _selectedMonth, showMonthlyGraphData]);
+
+  // Forbered data til Bar Chart baseret på toggle
+  const formattedBarChartData = useMemo(() => {
+    let filteredForDate = expenseData;
+    if (showMonthlyGraphData) {
+      filteredForDate = expenseData.filter(
+        (record) =>
+          new Date(record.date).getFullYear() === _selectedYear &&
+          new Date(record.date).getMonth() === _selectedMonth
+      );
+    } else {
+      filteredForDate = expenseData.filter(
+        (record) => new Date(record.date).getFullYear() === _selectedYear
+      );
+    }
+
+    const categoryAnalysisData = filteredForDate
+      .filter((record) => record.category.type === "expense")
+      .reduce((acc, record) => {
+        const categoryName = record.category.name;
+        const amount = parseFloat(record.amount);
+
+        if (!acc[categoryName]) {
+          acc[categoryName] = {
+            category: categoryName,
+            count: 0,
+            totalAmount: 0,
+          };
+        }
+        acc[categoryName].count += 1;
+        acc[categoryName].totalAmount += amount;
+        return acc;
+      }, {} as Record<string, { category: string; count: number; totalAmount: number }>);
+    return Object.values(categoryAnalysisData);
+  }, [expenseData, _selectedYear, _selectedMonth, showMonthlyGraphData]);
 
   // ########################################
   // ## Håndter åbning og lukning af modals ##
@@ -248,51 +320,6 @@ export default function SpendingClientPage() {
       _selectedMonth // Gennemsnit op til den valgte måned i det valgte år
     );
 
-  // Forbear data til cirkeldiagram
-  const expensePieChartData = expenseData
-    .filter(
-      (record) =>
-        new Date(record.date).getFullYear() === _selectedYear &&
-        record.category.type === "expense"
-    )
-    .reduce((acc, record) => {
-      const categoryName = record.category.name;
-      const amount = parseFloat(record.amount);
-      acc[categoryName] = (acc[categoryName] || 0) + amount;
-      return acc;
-    }, {} as Record<string, number>);
-
-  // Konverter til array for Recharts
-  const formattedExpensePieData = Object.entries(expensePieChartData).map(
-    ([name, value]) => ({ name, value })
-  );
-
-  // Forbered data til Bar Chart: Antal og Samlet Beløb pr. Kategori (for i år)
-  const categoryAnalysisData = expenseData
-    .filter(
-      (record) =>
-        new Date(record.date).getFullYear() === _selectedYear &&
-        record.category.type === "expense"
-    )
-    .reduce((acc, record) => {
-      const categoryName = record.category.name;
-      const amount = parseFloat(record.amount);
-
-      if (!acc[categoryName]) {
-        acc[categoryName] = {
-          category: categoryName,
-          count: 0,
-          totalAmount: 0,
-        };
-      }
-      acc[categoryName].count += 1;
-      acc[categoryName].totalAmount += amount;
-      return acc;
-    }, {} as Record<string, { category: string; count: number; totalAmount: number }>);
-
-  // Konverter til array for Recharts
-  const formattedBarChartData = Object.values(categoryAnalysisData);
-
   // Filtrer kategorier til kun at inkludere dem af typen 'expense' for AddExpenseModal
   const expenseCategories = allCategories.filter(
     (cat) => cat.type === "expense"
@@ -401,13 +428,25 @@ export default function SpendingClientPage() {
         {/* Cirkeldiagram */}
         <ReusablePieChart
           data={formattedExpensePieData}
-          title={`Udgiftfordeling (${_selectedYear})`}
+          baseTitle="Udgiftfordeling"
+          year={_selectedYear}
+          monthName={_selectedMonthName}
+          showMonthlyData={showMonthlyGraphData}
+          onToggleDataView={() =>
+            setShowMonthlyGraphData(!showMonthlyGraphData)
+          }
         />
 
         {/* Søjlediagram */}
         <ReusableBarChart
           data={formattedBarChartData}
-          title={`Kategorianalyse: Antal & Beløb (${_selectedYear})`}
+          baseTitle="Kategorianalyse: Antal & Beløb"
+          year={_selectedYear}
+          monthName={_selectedMonthName}
+          showMonthlyData={showMonthlyGraphData}
+          onToggleDataView={() =>
+            setShowMonthlyGraphData(!showMonthlyGraphData)
+          }
           categoryKey="category" // Nøglen i data-objekterne, der indeholder kategorinavnet
           bars={[
             {
