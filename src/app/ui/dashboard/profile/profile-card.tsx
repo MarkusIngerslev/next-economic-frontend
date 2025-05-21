@@ -6,7 +6,7 @@ import {
   updateUserProfile,
   UserProfile,
 } from "@/services/api/user";
-import { ProfileSkeleton } from "@/app/ui/skeleton";
+import { ProfileSkeleton } from "@/app/ui/skeletons/skeleton";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
 import EditProfileModal from "./edit-profile-modal";
 import { AnimatePresence } from "framer-motion";
