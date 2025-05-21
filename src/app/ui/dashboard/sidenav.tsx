@@ -14,7 +14,7 @@ export default function SideNav() {
       >
         <div className="w-32 md:w-40">
           <img
-            src="/pie-chart-illustration.svg"
+            src="/logo1-trans.png"
             alt="logo illustration"
             className="mx-auto w-16 h-16 md:w-32 md:h-32"
           />

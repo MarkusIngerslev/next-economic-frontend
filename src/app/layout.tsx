@@ -2,8 +2,8 @@ import "@/app/ui/globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata = {
-  title: "Login Demo",
-  description: "NestJS + Next.js + JWT",
+  title: "ØkoSmart",
+  description: "Dashboard for ØkoSmart",
 };
 
 export default function RootLayout({
