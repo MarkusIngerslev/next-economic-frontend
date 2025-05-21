@@ -6,7 +6,10 @@ import {
   PencilIcon,
   TrashIcon,
   PlusCircleIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
 } from "@heroicons/react/24/outline";
+import { getPaginationItems } from "@/app/ui/shared/paginationNumber";
 
 interface SummaryTableProps {
   data: IncomeRecord[];
@@ -14,6 +17,10 @@ interface SummaryTableProps {
   onEditRow?: (record: IncomeRecord) => void;
   onDeleteRow?: (record: IncomeRecord) => void;
   onAddIncome?: () => void;
+  currentPage: number;
+  itemsPerPage: number;
+  totalItems: number;
+  onPageChange: (page: number) => void;
 }
 
 export default function SummaryTable({
@@ -22,13 +29,17 @@ export default function SummaryTable({
   onEditRow,
   onDeleteRow,
   onAddIncome,
+  currentPage,
+  itemsPerPage,
+  totalItems,
+  onPageChange,
 }: SummaryTableProps) {
   // Vis stadig "Tilføj" knap selvom der ikke er data
-  if (!data || data.length === 0) {
+  if (totalItems === 0) {
     return (
       <div className="bg-gray-700 p-4 rounded shadow-xl text-gray-300">
         <div className="flex justify-between items-center mb-2">
-          <h2 className="text-xl font-bold text-gray-100">{title}</h2>{" "}
+          <h2 className="text-xl font-bold text-gray-100">{title}</h2>
           {onAddIncome && (
             <button
               onClick={onAddIncome}
@@ -45,10 +56,44 @@ export default function SummaryTable({
     );
   }
 
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedData = data.slice(startIndex, startIndex + itemsPerPage);
+
+  const renderPaginationControls = () => {
+    if (totalPages <= 1) return null;
+    return (
+      <div className="flex items-center space-x-1">
+        <button
+          key="prev"
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="p-1 rounded-md hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          title="Forrige side"
+        >
+          <ChevronLeftIcon className="h-5 w-5 text-gray-200" />
+        </button>
+        {getPaginationItems(currentPage, totalPages, onPageChange)}
+        <button
+          key="next"
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="p-1 rounded-md hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          title="Næste side"
+        >
+          <ChevronRightIcon className="h-5 w-5 text-gray-200" />
+        </button>
+      </div>
+    );
+  };
+
   return (
     <div className="bg-gray-700 mb-8 rounded shadow-xl text-gray-300 overflow-x-auto">
       <div className="flex justify-between items-center my-4 mx-4">
-        <h2 className="text-xl font-bold my-4 ms-4 text-gray-100">{title}</h2>{" "}
+        <div className="flex items-center space-x-4">
+          <h2 className="text-xl font-bold text-gray-100">{title}</h2>
+          {renderPaginationControls()}
+        </div>
         {onAddIncome && (
           <button
             onClick={onAddIncome}
@@ -104,7 +149,7 @@ export default function SummaryTable({
           </tr>
         </thead>
         <tbody className="bg-gray-700 divide-y divide-gray-600">
-          {data.map((item) => (
+          {paginatedData.map((item) => (
             <tr key={item.id}>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-200">
                 {formatDateToLocal(item.date)}
