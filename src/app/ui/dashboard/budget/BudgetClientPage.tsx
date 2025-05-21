@@ -47,6 +47,10 @@ export default function BudgetClientPage() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showMonthlyGraphData, setShowMonthlyGraphData] = useState(false);
 
+  // State for paginering
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10; // Antal rækker per side
+
   // State edit modal
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedIncomeRecord, setSelectedIncomeRecord] =
@@ -73,6 +77,11 @@ export default function BudgetClientPage() {
   const _selectedMonthName = selectedDate.toLocaleString("da-DK", {
     month: "long",
   });
+
+  // Nulstil currentPage når selectedDate (og dermed datasættet for tabellen) ændres
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [_selectedMonth, _selectedYear]);
 
   // ####################################
   // ## Hent data fra backend ved load ##
@@ -413,6 +422,10 @@ export default function BudgetClientPage() {
         onEditRow={handleOpenEditModal}
         onDeleteRow={handleOpenDeleteModal}
         onAddIncome={handleOpenAddIncomeModal}
+        currentPage={currentPage}
+        itemsPerPage={ITEMS_PER_PAGE}
+        totalItems={incomeForSelectedMonthForTable.length}
+        onPageChange={(page) => setCurrentPage(page)}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
