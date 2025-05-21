@@ -33,6 +33,7 @@ import { formatDateToLocal } from "@/app/lib/utils";
 // Graf komponenter
 import ReusablePieChart from "@/app/ui/dashboard/graphs/ReusablePieChart";
 import ReusableBarChart from "@/app/ui/dashboard/graphs/ReusableBarChart";
+import MonthYearSelector from "@/app/ui/dashboard/finance/MonthYearSelector";
 
 export default function BudgetClientPage() {
   // #######################################
@@ -43,6 +44,7 @@ export default function BudgetClientPage() {
   const [incomeData, setIncomeData] = useState<IncomeRecord[]>([]);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   // State edit modal
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -64,10 +66,9 @@ export default function BudgetClientPage() {
     string | null
   >(null);
 
-  // Definer currentDate, currentMonth og currentYear før de bruges
-  const currentDate = new Date();
-  const currentMonth = currentDate.getMonth();
-  const currentYear = currentDate.getFullYear();
+  // Udled måned og år fra selectedDate
+  const _selectedYear = selectedDate.getFullYear();
+  const _selectedMonth = selectedDate.getMonth();
 
   // ####################################
   // ## Hent data fra backend ved load ##
@@ -183,7 +184,7 @@ export default function BudgetClientPage() {
       console.error("Failed to delete income record:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Ukendt fejl ved sletning.";
-
+      setSaveError(`Kunne ikke slette : ${errorMessage}`);
       throw error;
     } finally {
       setIsDeleting(false);
@@ -225,22 +226,26 @@ export default function BudgetClientPage() {
   // ## Beregn data til grafer og summaryCards ##
   // ############################################
 
-  const incomeThisYear = calculateIncomeThisYear(incomeData, currentYear);
-  const incomeThisMonth = calculateIncomeThisMonth(
+  const incomeForSelectedYear = calculateIncomeThisYear(
     incomeData,
-    currentMonth,
-    currentYear
+    _selectedYear
   );
-  const averageMonthlyIncomeThisYear = calculateAverageMonthlyIncomeThisYear(
-    incomeThisYear,
-    currentMonth
+  const incomeForSelectedMonth = calculateIncomeThisMonth(
+    incomeData,
+    _selectedMonth,
+    _selectedYear
   );
+  const averageMonthlyIncomeForSelectedPeriod =
+    calculateAverageMonthlyIncomeThisYear(
+      incomeForSelectedYear,
+      _selectedMonth
+    );
 
   // Forbear data til cirkeldiagram
   const incomePieChartData = incomeData
     .filter(
       (record) =>
-        new Date(record.date).getFullYear() === currentYear &&
+        new Date(record.date).getFullYear() === _selectedYear &&
         record.category.type === "income"
     )
     .reduce((acc, record) => {
@@ -259,7 +264,7 @@ export default function BudgetClientPage() {
   const categoryAnalysisData = incomeData
     .filter(
       (record) =>
-        new Date(record.date).getFullYear() === currentYear &&
+        new Date(record.date).getFullYear() === _selectedYear &&
         record.category.type === "income"
     )
     .reduce((acc, record) => {
@@ -284,6 +289,15 @@ export default function BudgetClientPage() {
   // Filtrer kategorier til kun at inkludere dem af typen 'income' for AddIncomeModal
   const incomeCategories = allCategories.filter((cat) => cat.type === "income");
 
+  // Filtrer expenseData for at vise kun de poster der matcher den valgte måned og år
+  const incomeForSelectedMonthForTable = incomeData.filter((record) => {
+    const recordDate = new Date(record.date);
+    return (
+      recordDate.getFullYear() === _selectedYear &&
+      recordDate.getMonth() === _selectedMonth
+    );
+  });
+
   // ###########################################
   // ## Render UI med data og modal komponent ##
   // ###########################################
@@ -292,8 +306,14 @@ export default function BudgetClientPage() {
     <main className="container mx-auto p-8  relative">
       {/* Budget page content */}
       <div>
-        {/* <h1 className="text-2xl font-bold mb-6">Overblik over indtægt</h1> */}
-        <p className="mb-6 text-center">Budget page content goes here.</p>
+        <h1 className="text-2xl font-bold mb-6">Overblik over indtægter</h1>
+        <div className="mb-6 flex justify-center">
+          <MonthYearSelector
+            selectedDate={selectedDate}
+            onDateChange={setSelectedDate}
+            buttonTextPrefix="Viser udgifter for:"
+          />
+        </div>
       </div>
 
       {/* små oplysnings cards */}
@@ -304,21 +324,29 @@ export default function BudgetClientPage() {
           {/* SummaryCards placeres direkte i flex containeren */}
           <SummaryCard
             className="max-w-xs w-full"
-            title="Årlig Indkomst"
-            content={`${incomeThisYear.toLocaleString()} kr.`}
+            title={`Årligt Indkomst (${_selectedYear})`}
+            content={`${incomeForSelectedYear.toLocaleString()} kr.`}
           />
           <SummaryCard
             className="max-w-xs w-full" // Størrelse defineres her
-            title="Månedlig Indkomst"
-            content={`${incomeThisMonth.toLocaleString()} kr.`}
+            title={`Månedlig Indkomst (${selectedDate.toLocaleString("da-DK", {
+              month: "long",
+            })} ${_selectedYear})`}
+            content={`${incomeForSelectedMonth.toLocaleString()} kr.`}
           />
           <SummaryCard
             className="max-w-xs w-full"
-            title="Gns. Månedlig Indkomst (I år)"
-            content={`${averageMonthlyIncomeThisYear.toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })} kr.`}
+            title={`Gns. Månedlig Indkomst (${_selectedYear}, op til ${selectedDate.toLocaleString(
+              "da-DK",
+              { month: "long" }
+            )})`}
+            content={`${averageMonthlyIncomeForSelectedPeriod.toLocaleString(
+              undefined,
+              {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }
+            )} kr.`}
           />
         </div>
       </div>
@@ -350,8 +378,11 @@ export default function BudgetClientPage() {
 
       {/* Tabel of indtægt */}
       <SummaryTable
-        data={incomeData}
-        title="Mine Indkomster"
+        data={incomeForSelectedMonthForTable}
+        title={`Mine Udgifter - ${selectedDate.toLocaleString("da-DK", {
+          month: "long",
+          year: "numeric",
+        })}`}
         onEditRow={handleOpenEditModal}
         onDeleteRow={handleOpenDeleteModal}
         onAddIncome={handleOpenAddIncomeModal}
@@ -361,13 +392,13 @@ export default function BudgetClientPage() {
         {/* Cirkeldiagram */}
         <ReusablePieChart
           data={formattedIncomePieData}
-          title="Indkomstfordeling (I år)"
+          title={`Udgiftfordeling (${_selectedYear})`}
         />
 
         {/* Søjlediagram */}
         <ReusableBarChart
           data={formattedBarChartData}
-          title="Kategorianalyse: Antal & Beløb (I år)"
+          title={`Kategorianalyse: Antal & Beløb (${_selectedYear})`}
           categoryKey="category" // Nøglen i data-objekterne, der indeholder kategorinavnet
           bars={[
             {
