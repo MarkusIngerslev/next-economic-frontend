@@ -1,20 +1,11 @@
-"use client";
+import { Metadata } from "next";
+import LoginClientPage from "../ui/shared/LoginClientPage";
 
-import dynamic from "next/dynamic";
+export const metadata: Metadata = {
+  title: "Log ind | ØkoSmart",
+  description: "Log ind til ØkoSmart",
+};
 
-// Importing the LoginForm component dynamically to avoid server-side rendering
-const LoginForm = dynamic(
-  () =>
-    import("@/app/ui/shared/login-form").then((mod) => ({
-      default: mod.LoginForm,
-    })),
-  { ssr: false }
-);
-
-export default function LoginPage() {
-  return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-800 px-4">
-      <LoginForm />
-    </main>
-  );
+export default function Page() {
+  return <LoginClientPage />;
 }
