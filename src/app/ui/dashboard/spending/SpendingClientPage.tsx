@@ -33,6 +33,7 @@ import { formatDateToLocal } from "@/app/lib/utils";
 // Graf komponenter
 import ReusablePieChart from "@/app/ui/dashboard/graphs/ReusablePieChart";
 import ReusableBarChart from "@/app/ui/dashboard/graphs/ReusableBarChart";
+import MonthYearSelector from "@/app/ui/dashboard/finance/MonthYearSelector";
 
 export default function SpendingClientPage() {
   // #######################################
@@ -43,6 +44,7 @@ export default function SpendingClientPage() {
   const [expenseData, setExpenseData] = useState<ExpenseRecord[]>([]);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   // State edit modal
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -64,10 +66,9 @@ export default function SpendingClientPage() {
     string | null
   >(null);
 
-  // Definer currentDate, currentMonth og currentYear før de bruges
-  const currentDate = new Date();
-  const currentMonth = currentDate.getMonth();
-  const currentYear = currentDate.getFullYear();
+  // Udled måned og år fra selectedDate
+  const _selectedYear = selectedDate.getFullYear();
+  const _selectedMonth = selectedDate.getMonth();
 
   // ####################################
   // ## Hent data fra backend ved load ##
@@ -188,6 +189,7 @@ export default function SpendingClientPage() {
       console.error("Failed to delete expense record:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Ukendt fejl ved sletning.";
+      setSaveError(`Kunne ikke slette : ${errorMessage}`);
       throw error;
     } finally {
       setIsDeleting(false);
@@ -231,22 +233,26 @@ export default function SpendingClientPage() {
   // ## Beregn data til grafer og summaryCards ##
   // ############################################
 
-  const expenseThisYear = calculateIncomeThisYear(expenseData, currentYear);
-  const expenseThisMonth = calculateIncomeThisMonth(
+  const expenseForSelectedYear = calculateIncomeThisYear(
     expenseData,
-    currentMonth,
-    currentYear
+    _selectedYear
   );
-  const averageMonthlyExpenseThisYear = calculateAverageMonthlyIncomeThisYear(
-    expenseThisYear,
-    currentMonth
+  const expenseForSelectedMonth = calculateIncomeThisMonth(
+    expenseData,
+    _selectedMonth,
+    _selectedYear
   );
+  const averageMonthlyExpenseForSelectedPeriod =
+    calculateAverageMonthlyIncomeThisYear(
+      expenseForSelectedYear,
+      _selectedMonth // Gennemsnit op til den valgte måned i det valgte år
+    );
 
   // Forbear data til cirkeldiagram
   const expensePieChartData = expenseData
     .filter(
       (record) =>
-        new Date(record.date).getFullYear() === currentYear &&
+        new Date(record.date).getFullYear() === _selectedYear &&
         record.category.type === "expense"
     )
     .reduce((acc, record) => {
@@ -265,7 +271,7 @@ export default function SpendingClientPage() {
   const categoryAnalysisData = expenseData
     .filter(
       (record) =>
-        new Date(record.date).getFullYear() === currentYear &&
+        new Date(record.date).getFullYear() === _selectedYear &&
         record.category.type === "expense"
     )
     .reduce((acc, record) => {
@@ -292,6 +298,15 @@ export default function SpendingClientPage() {
     (cat) => cat.type === "expense"
   );
 
+  // Filtrer expenseData for at vise kun de poster der matcher den valgte måned og år
+  const expensesForSelectedMonthForTable = expenseData.filter((record) => {
+    const recordDate = new Date(record.date);
+    return (
+      recordDate.getFullYear() === _selectedYear &&
+      recordDate.getMonth() === _selectedMonth
+    );
+  });
+
   // ###########################################
   // ## Render UI med data og modal komponent ##
   // ###########################################
@@ -300,8 +315,14 @@ export default function SpendingClientPage() {
     <main className="container mx-auto p-8 relative">
       {/* Budget page content */}
       <div>
-        <h1 className="text-2xl font-bold mb-6">Overblik over indtægt</h1>
-        <p className="mb-6 text-center">Budget page content goes here.</p>
+        <h1 className="text-2xl font-bold mb-6">Overblik over udgifter</h1>
+        <div className="mb-6 flex justify-center">
+          <MonthYearSelector
+            selectedDate={selectedDate}
+            onDateChange={setSelectedDate}
+            buttonTextPrefix="Viser udgifter for:"
+          />
+        </div>
       </div>
 
       {/* små oplysnings cards */}
@@ -312,18 +333,23 @@ export default function SpendingClientPage() {
           {/* SummaryCards placeres direkte i flex containeren */}
           <SummaryCard
             className="max-w-xs w-full"
-            title="Årlig forbrug"
-            content={`${expenseThisYear.toLocaleString()} kr.`}
+            title={`Årligt forbrug (${_selectedYear})`}
+            content={`${expenseForSelectedYear.toLocaleString()} kr.`}
           />
           <SummaryCard
             className="max-w-xs w-full" // Størrelse defineres her
-            title="Månedlig forbrug"
-            content={`${expenseThisMonth.toLocaleString()} kr.`}
+            title={`Månedligt forbrug (${selectedDate.toLocaleString("da-DK", {
+              month: "long",
+            })} ${_selectedYear})`}
+            content={`${expenseForSelectedMonth.toLocaleString()} kr.`}
           />
           <SummaryCard
             className="max-w-xs w-full"
-            title="Gns. Månedlig omkostning (I år)"
-            content={`${averageMonthlyExpenseThisYear.toLocaleString(
+            title={`Gns. Månedlig omk. (${_selectedYear}, op til ${selectedDate.toLocaleString(
+              "da-DK",
+              { month: "long" }
+            )})`}
+            content={`${averageMonthlyExpenseForSelectedPeriod.toLocaleString(
               undefined,
               {
                 minimumFractionDigits: 2,
@@ -361,8 +387,11 @@ export default function SpendingClientPage() {
 
       {/* Tabel of indtægt */}
       <SummaryTable
-        data={expenseData}
-        title="Mine Indkomster"
+        data={expensesForSelectedMonthForTable} // Brug filtrerede data
+        title={`Mine Udgifter - ${selectedDate.toLocaleString("da-DK", {
+          month: "long",
+          year: "numeric",
+        })}`}
         onEditRow={handleOpenEditModal}
         onDeleteRow={handleOpenDeleteModal}
         onAddIncome={handleOpenAddExpenseModal}
@@ -372,13 +401,13 @@ export default function SpendingClientPage() {
         {/* Cirkeldiagram */}
         <ReusablePieChart
           data={formattedExpensePieData}
-          title="Indkomstfordeling (I år)"
+          title={`Udgiftfordeling (${_selectedYear})`}
         />
 
         {/* Søjlediagram */}
         <ReusableBarChart
           data={formattedBarChartData}
-          title="Kategorianalyse: Antal & Beløb (I år)"
+          title={`Kategorianalyse: Antal & Beløb (${_selectedYear})`}
           categoryKey="category" // Nøglen i data-objekterne, der indeholder kategorinavnet
           bars={[
             {
