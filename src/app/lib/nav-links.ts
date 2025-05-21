@@ -21,6 +21,11 @@ export interface LinkDefinition {
 export const links = [
   {
     name: "Forside",
+    href: "/",
+    icon: HomeIcon,
+  },
+  {
+    name: "Hovedside",
     href: "/dashboard",
     icon: HomeIcon,
   },

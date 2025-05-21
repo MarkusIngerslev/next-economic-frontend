@@ -3,11 +3,18 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { links as allLinks, LinkDefinition } from "@/app/lib/nav-links";
+import { getUserProfile, UserProfile } from "@/services/api";
 
 export default function HomeClientPage() {
   const [showHeader, setShowHeader] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const headerScrollThreshold = 70; // Hvor langt ned man skal scrolle før header skjules (ca. headers højde)
+
+  const { token, isAuthReady, logout } = useAuth();
+  const [visibleLinks, setVisibleLinks] = useState<LinkDefinition[]>([]);
+  const [isLoadingNavLinks, setIsLoadingNavLinks] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -38,24 +45,123 @@ export default function HomeClientPage() {
     };
   }, [lastScrollY]);
 
+  useEffect(() => {
+    const fetchProfileAndSetLinks = async () => {
+      if (!isAuthReady) {
+        setIsLoadingNavLinks(true); // Still loading auth state
+        return;
+      }
+
+      if (token) {
+        setIsLoadingNavLinks(true);
+        try {
+          const userProfile: UserProfile = await getUserProfile();
+          const userIsAdmin =
+            userProfile.roles && userProfile.roles.includes("admin");
+
+          // Filter out the "Forside" link and then filter by admin role
+          let linksToDisplay = allLinks.filter((link) => link.href !== "/");
+
+          if (userIsAdmin) {
+            setVisibleLinks(linksToDisplay);
+          } else {
+            setVisibleLinks(
+              linksToDisplay.filter(
+                (link) => link.name.toLowerCase() !== "admin panel"
+              )
+            );
+          }
+        } catch (error) {
+          console.error(
+            "Failed to fetch user profile for HomeClientPage header links:",
+            error
+          );
+          // Fallback: show non-admin links, excluding "Forside"
+          setVisibleLinks(
+            allLinks.filter(
+              (link) =>
+                link.href !== "/" && link.name.toLowerCase() !== "admin panel"
+            )
+          );
+        } finally {
+          setIsLoadingNavLinks(false);
+        }
+      } else {
+        setVisibleLinks([]); // No token, so no dashboard links
+        setIsLoadingNavLinks(false);
+      }
+    };
+
+    fetchProfileAndSetLinks();
+  }, [token, isAuthReady]);
+
+  const handleLogout = () => {
+    logout();
+    // visibleLinks vil blive ryddet af useEffect ovenfor, da token ændres
+  };
+
   return (
     <main className="min-h-screen bg-gray-800 text-gray-100">
-      {/* Header med Log ind knap */}
+      {/* Header */}
       <motion.header
         className="fixed top-0 left-0 w-full z-50 bg-gray-800 shadow-md py-4 px-4 sm:px-6 lg:px-8"
         initial={{ y: 0 }}
         animate={{ y: showHeader ? 0 : "-100%" }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
-        <div className="container mx-auto flex justify-end items-center">
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Link
-              href="/login"
-              className="bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out shadow"
-            >
-              Log ind
-            </Link>
-          </motion.div>
+        <div className="container mx-auto flex justify-between items-center">
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            {(isLoadingNavLinks || !isAuthReady) && token ? (
+              <>
+                <div className="h-8 w-20 bg-gray-700 rounded animate-pulse"></div>
+                <div className="h-8 w-20 bg-gray-700 rounded animate-pulse"></div>
+                <div className="h-8 w-20 bg-gray-700 rounded animate-pulse"></div>
+                <div className="h-8 w-20 bg-gray-700 rounded animate-pulse"></div>
+                <div className="h-8 w-20 bg-gray-700 rounded animate-pulse"></div>
+                <div className="h-8 w-20 bg-gray-700 rounded animate-pulse"></div>
+              </>
+            ) : token && visibleLinks.length > 0 ? (
+              visibleLinks.map((link) => (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className="text-gray-300 hover:text-white hover:bg-gray-700 font-medium py-2 px-3 sm:px-4 rounded-md transition-colors text-sm sm:text-base"
+                >
+                  {link.name}
+                </Link>
+              ))
+            ) : null}
+          </div>
+          {/* Højre sektion: Log ind / Log ud knap */}
+          <div className="flex items-center">
+            {isLoadingNavLinks || !isAuthReady ? (
+              <div className="h-8 w-24 bg-gray-700 rounded animate-pulse"></div>
+            ) : token ? (
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <button
+                  onClick={handleLogout}
+                  className="border border-gray-500 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out shadow"
+                >
+                  Log ud
+                </button>
+              </motion.div>
+            ) : (
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Link
+                  href="/login"
+                  className="border border-gray-500 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out shadow"
+                >
+                  Log ind
+                </Link>
+              </motion.div>
+            )}
+          </div>
         </div>
       </motion.header>
 
