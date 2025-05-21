@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { AnimatePresence } from "framer-motion";
 
 // Komponenter
@@ -45,6 +45,7 @@ export default function BudgetClientPage() {
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [showMonthlyGraphData, setShowMonthlyGraphData] = useState(false);
 
   // State edit modal
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -69,6 +70,9 @@ export default function BudgetClientPage() {
   // Udled måned og år fra selectedDate
   const _selectedYear = selectedDate.getFullYear();
   const _selectedMonth = selectedDate.getMonth();
+  const _selectedMonthName = selectedDate.toLocaleString("da-DK", {
+    month: "long",
+  });
 
   // ####################################
   // ## Hent data fra backend ved load ##
@@ -100,6 +104,74 @@ export default function BudgetClientPage() {
   useEffect(() => {
     fetchAllData();
   }, []);
+
+  // ############################
+  // ## Beregn data til grafer ##
+  // ############################
+
+  // Forbered data til cirkeldiagram baseret på toggle
+  const formattedIncomePieData = useMemo(() => {
+    let filteredForDate = incomeData;
+    if (showMonthlyGraphData) {
+      filteredForDate = incomeData.filter(
+        (record) =>
+          new Date(record.date).getFullYear() === _selectedYear &&
+          new Date(record.date).getMonth() === _selectedMonth
+      );
+    } else {
+      filteredForDate = incomeData.filter(
+        (record) => new Date(record.date).getFullYear() === _selectedYear
+      );
+    }
+
+    const pieChartData = filteredForDate
+      .filter((record) => record.category.type === "income")
+      .reduce((acc, record) => {
+        const categoryName = record.category.name;
+        const amount = parseFloat(record.amount);
+        acc[categoryName] = (acc[categoryName] || 0) + amount;
+        return acc;
+      }, {} as Record<string, number>);
+    return Object.entries(pieChartData).map(([name, value]) => ({
+      name,
+      value,
+    }));
+  }, [incomeData, _selectedYear, _selectedMonth, showMonthlyGraphData]);
+
+  // Forbered data til Bar Chart baseret på toggle
+  const formattedIncomeBarChartData = useMemo(() => {
+    let filteredForDate = incomeData;
+    if (showMonthlyGraphData) {
+      filteredForDate = incomeData.filter(
+        (record) =>
+          new Date(record.date).getFullYear() === _selectedYear &&
+          new Date(record.date).getMonth() === _selectedMonth
+      );
+    } else {
+      filteredForDate = incomeData.filter(
+        (record) => new Date(record.date).getFullYear() === _selectedYear
+      );
+    }
+
+    const categoryAnalysisData = filteredForDate
+      .filter((record) => record.category.type === "income")
+      .reduce((acc, record) => {
+        const categoryName = record.category.name;
+        const amount = parseFloat(record.amount);
+
+        if (!acc[categoryName]) {
+          acc[categoryName] = {
+            category: categoryName,
+            count: 0,
+            totalAmount: 0,
+          };
+        }
+        acc[categoryName].count += 1;
+        acc[categoryName].totalAmount += amount;
+        return acc;
+      }, {} as Record<string, { category: string; count: number; totalAmount: number }>);
+    return Object.values(categoryAnalysisData);
+  }, [incomeData, _selectedYear, _selectedMonth, showMonthlyGraphData]);
 
   // ########################################
   // ## Håndter åbning og lukning af modals ##
@@ -241,51 +313,6 @@ export default function BudgetClientPage() {
       _selectedMonth
     );
 
-  // Forbear data til cirkeldiagram
-  const incomePieChartData = incomeData
-    .filter(
-      (record) =>
-        new Date(record.date).getFullYear() === _selectedYear &&
-        record.category.type === "income"
-    )
-    .reduce((acc, record) => {
-      const categoryName = record.category.name;
-      const amount = parseFloat(record.amount);
-      acc[categoryName] = (acc[categoryName] || 0) + amount;
-      return acc;
-    }, {} as Record<string, number>);
-
-  // Konverter til array for Recharts
-  const formattedIncomePieData = Object.entries(incomePieChartData).map(
-    ([name, value]) => ({ name, value })
-  );
-
-  // Forbered data til Bar Chart: Antal og Samlet Beløb pr. Kategori (for i år)
-  const categoryAnalysisData = incomeData
-    .filter(
-      (record) =>
-        new Date(record.date).getFullYear() === _selectedYear &&
-        record.category.type === "income"
-    )
-    .reduce((acc, record) => {
-      const categoryName = record.category.name;
-      const amount = parseFloat(record.amount);
-
-      if (!acc[categoryName]) {
-        acc[categoryName] = {
-          category: categoryName,
-          count: 0,
-          totalAmount: 0,
-        };
-      }
-      acc[categoryName].count += 1;
-      acc[categoryName].totalAmount += amount;
-      return acc;
-    }, {} as Record<string, { category: string; count: number; totalAmount: number }>);
-
-  // Konverter til array for Recharts
-  const formattedBarChartData = Object.values(categoryAnalysisData);
-
   // Filtrer kategorier til kun at inkludere dem af typen 'income' for AddIncomeModal
   const incomeCategories = allCategories.filter((cat) => cat.type === "income");
 
@@ -392,13 +419,25 @@ export default function BudgetClientPage() {
         {/* Cirkeldiagram */}
         <ReusablePieChart
           data={formattedIncomePieData}
-          title={`Udgiftfordeling (${_selectedYear})`}
+          baseTitle="Udgiftfordeling"
+          year={_selectedYear}
+          monthName={_selectedMonthName}
+          showMonthlyData={showMonthlyGraphData}
+          onToggleDataView={() =>
+            setShowMonthlyGraphData(!showMonthlyGraphData)
+          }
         />
 
         {/* Søjlediagram */}
         <ReusableBarChart
-          data={formattedBarChartData}
-          title={`Kategorianalyse: Antal & Beløb (${_selectedYear})`}
+          data={formattedIncomeBarChartData}
+          baseTitle="Kategorianalyse: Antal & Beløb"
+          year={_selectedYear}
+          monthName={_selectedMonthName}
+          showMonthlyData={showMonthlyGraphData}
+          onToggleDataView={() =>
+            setShowMonthlyGraphData(!showMonthlyGraphData)
+          }
           categoryKey="category" // Nøglen i data-objekterne, der indeholder kategorinavnet
           bars={[
             {
