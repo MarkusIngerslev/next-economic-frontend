@@ -8,6 +8,7 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
+import ToggleSwitch from "@/app/ui/shared/ToggleSwitch";
 
 const COLORS = [
   "#0088FE",
@@ -32,23 +33,47 @@ interface PieChartDataItem {
 
 interface ReusablePieChartProps {
   data: PieChartDataItem[];
-  title?: string;
+  baseTitle: string; // Ændret fra title
+  year: number;
+  monthName?: string;
+  showMonthlyData: boolean;
+  onToggleDataView: () => void;
 }
 
-const ReusablePieChart: React.FC<ReusablePieChartProps> = ({ data, title }) => {
+const ReusablePieChart: React.FC<ReusablePieChartProps> = ({
+  data,
+  baseTitle,
+  year,
+  monthName,
+  showMonthlyData,
+  onToggleDataView,
+}) => {
   if (!data || data.length === 0) {
     return (
       <div className="text-center p-4 text-gray-300">Ingen data at vise.</div>
     );
   }
 
+  const dynamicTitle =
+    showMonthlyData && monthName
+      ? `${baseTitle} (${monthName} ${year})`
+      : `${baseTitle} (${year})`;
+
   return (
-    <div className="bg-gray-700 p-4 rounded shadow-md text-gray-300 h-96">
-      {title && (
-        <h2 className="text-xl font-bold mb-4 text-center text-gray-100">
-          {title}
+    <div className="bg-gray-700 p-4 rounded shadow-md text-gray-300 h-96 flex flex-col">
+      <div className="flex justify-between items-center mb-2">
+        <div className="flex-1"></div> {/* Spacer */}
+        <h2 className="text-lg sm:text-xl font-bold text-center text-gray-100 flex-shrink-0 mx-2">
+          {dynamicTitle}
         </h2>
-      )}
+        <div className="flex-1 flex justify-end">
+          <ToggleSwitch
+            isOn={showMonthlyData}
+            handleToggle={onToggleDataView}
+            size="sm"
+          />
+        </div>
+      </div>
       <ResponsiveContainer width="100%" height="90%">
         <PieChart>
           <Pie

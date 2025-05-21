@@ -10,6 +10,7 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
+import ToggleSwitch from "@/app/ui/shared/ToggleSwitch";
 
 interface BarChartDataItem {
   [key: string]: string | number; // Fleksibel datastruktur
@@ -24,15 +25,23 @@ interface BarInfo {
 
 interface ReusableBarChartProps {
   data: BarChartDataItem[];
-  title?: string;
-  categoryKey: string; // Nøgle for kategorinavne på X-aksen
-  bars: BarInfo[]; // Array af information for hver søjle-serie
-  yAxisLabels?: { left?: string; right?: string }; // Valgfrie labels til Y-akserne
+  baseTitle: string; // Ændret fra title
+  year: number;
+  monthName?: string;
+  showMonthlyData: boolean;
+  onToggleDataView: () => void;
+  categoryKey: string;
+  bars: BarInfo[];
+  yAxisLabels?: { left?: string; right?: string };
 }
 
 const ReusableBarChart: React.FC<ReusableBarChartProps> = ({
   data,
-  title,
+  baseTitle,
+  year,
+  monthName,
+  showMonthlyData,
+  onToggleDataView,
   categoryKey,
   bars,
   yAxisLabels,
@@ -45,13 +54,26 @@ const ReusableBarChart: React.FC<ReusableBarChartProps> = ({
     );
   }
 
+  const dynamicTitle =
+    showMonthlyData && monthName
+      ? `${baseTitle} (${monthName} ${year})`
+      : `${baseTitle} (${year})`;
+
   return (
-    <div className="bg-gray-700 p-4 rounded shadow-md text-gray-300 h-96">
-      {title && (
-        <h2 className="text-xl font-bold mb-4 text-center text-gray-100">
-          {title}
+    <div className="bg-gray-700 p-4 rounded shadow-md text-gray-300 h-96 flex flex-col">
+      <div className="flex justify-between items-center mb-2">
+        <div className="flex-1"></div> {/* Spacer */}
+        <h2 className="text-lg sm:text-xl font-bold text-center text-gray-100 flex-shrink-0 mx-2">
+          {dynamicTitle}
         </h2>
-      )}
+        <div className="flex-1 flex justify-end">
+          <ToggleSwitch
+            isOn={showMonthlyData}
+            handleToggle={onToggleDataView}
+            size="sm"
+          />
+        </div>
+      </div>
       <ResponsiveContainer width="100%" height="90%">
         <BarChart
           data={data}
