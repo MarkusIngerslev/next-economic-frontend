@@ -2,7 +2,8 @@ import { Metadata } from "next";
 import ProfileCard from "@/app/ui/dashboard/profile/profile-card";
 
 export const metadata: Metadata = {
-  title: "Profile",
+  title: "Min profil | ØkoSmart",
+  description: "Personlige oplysninger hos ØkoSmart",
 };
 
 export default function Page() {
