@@ -9,6 +9,12 @@ import SummaryTable from "@/app/ui/dashboard/finance/summaryTable";
 import EditFinanceModal from "@/app/ui/dashboard/finance/editFinanceModal";
 import ConfirmDeleteModal from "@/app/ui/dashboard/finance/confirmDeleteModal";
 import AddIncomeModal from "@/app/ui/dashboard/finance/createNewModal";
+import {
+  SummaryCardSkeleton,
+  SummaryTableSkeleton,
+  ReusablePieChartSkeleton,
+  ReusableBarChartSkeleton,
+} from "@/app/ui/skeletons/skeleton";
 
 // API kald
 import {
@@ -98,6 +104,10 @@ export default function SpendingClientPage() {
         getMyExpense(),
         getAllCategories(),
       ]);
+
+      // Kunstig forsinkelse på 10 sekunder
+      await new Promise((resolve) => setTimeout(resolve, 10000));
+
       setExpenseData(expense);
       setAllCategories(categories);
     } catch (error) {
@@ -304,8 +314,30 @@ export default function SpendingClientPage() {
 
   if (isLoading) {
     return (
-      <main className="container mx-auto p-8 text-center">
-        <p>Henter data...</p>
+      <main className="container mx-auto p-8 relative">
+        <div className="animate-pulse">
+          <div className="h-8 bg-slate-500 rounded w-1/2 mb-6"></div>{" "}
+          {/* Page title skeleton */}
+          <div className="mb-6 flex justify-center">
+            <div className="h-10 bg-slate-600 rounded w-64"></div>{" "}
+            {/* MonthYearSelector skeleton */}
+          </div>
+        </div>
+
+        <div className="w-3/4 mx-auto mb-8 ">
+          <div className="flex flex-wrap justify-center mb-4 gap-4">
+            <SummaryCardSkeleton className="max-w-xs w-full" />
+            <SummaryCardSkeleton className="max-w-xs w-full" />
+            <SummaryCardSkeleton className="max-w-xs w-full" />
+          </div>
+        </div>
+
+        <SummaryTableSkeleton />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
+          <ReusablePieChartSkeleton />
+          <ReusableBarChartSkeleton />
+        </div>
       </main>
     );
   }
