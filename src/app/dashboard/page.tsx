@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import DashboardClientPage from "@/app/ui/dashboard/DashboardClientPage";
 
 export const metadata: Metadata = {
-  title: "Forside | ØkoSmart",
+  title: "Hovedside | ØkoSmart",
   description: "Forside for ØkoSmart",
 };
 
