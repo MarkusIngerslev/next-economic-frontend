@@ -1,6 +1,6 @@
 import "@/app/ui/globals.css";
 import { AuthProvider } from "@/context/AuthContext";
-import ChatButton from "@/app/ui/shared/chat/ChatButton";
+import ClientLayoutWrapper from "@/app/ui/shared/ClientLayoutWrapper";
 
 export const metadata = {
   title: "ØkoSmart",
@@ -16,8 +16,7 @@ export default function RootLayout({
     <html lang="da">
       <body>
         <AuthProvider>
-          {children}
-          <ChatButton />
+          <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
         </AuthProvider>
       </body>
     </html>
