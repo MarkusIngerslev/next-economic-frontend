@@ -55,7 +55,8 @@ export async function getAiCompletion(
   message: string,
   history?: HistoryMessage[]
 ): Promise<AiResponse> {
-  const payload: AiCompletionRequest = { message, history };
+  // const payload: AiCompletionRequest = { message, history }; // Use if you want to include history
+  const payload: AiCompletionRequest = { message }; // Omit history if not needed
   try {
     const response = await apiClient.request<AiResponse>("/ai/completion", {
       method: "POST",
@@ -83,10 +84,10 @@ export async function getAiContextualCompletion(
   contextData: AiContextData,
   history?: HistoryMessage[]
 ): Promise<AiResponse> {
+  // const payload: AiContextualCompletionRequest = { message, contextData, history}; // Use if you want to include history
   const payload: AiContextualCompletionRequest = {
     message,
     contextData,
-    history,
   };
   try {
     const response = await apiClient.request<AiResponse>(

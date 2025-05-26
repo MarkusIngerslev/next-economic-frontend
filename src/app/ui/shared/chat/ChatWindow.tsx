@@ -126,13 +126,13 @@ export default function ChatWindow({ isOpen, onClose }: ChatWindowProps) {
         }
         aiReply = await getAiContextualCompletion(
           userMessage.content, // Send current user message text
-          contextData,
-          conversationHistory // Send the prepared history
+          contextData
+          // conversationHistory // Udcommentere denne linje hvis historik skal inkluderes
         );
       } else {
         aiReply = await getAiCompletion(
-          userMessage.content, // Send current user message text
-          conversationHistory // Send the prepared history
+          userMessage.content // Send current user message text
+          // conversationHistory // Udcommentere denne linje hvis historik skal inkluderes
         );
       }
       setMessages((prev) => [
@@ -174,18 +174,10 @@ export default function ChatWindow({ isOpen, onClose }: ChatWindowProps) {
       </div>
       <div className="flex-grow p-3 overflow-y-auto space-y-2 bg-gray-800">
         {messages.map((msg) => (
-          <ChatMessage
-            key={msg.id}
-            role={msg.role} 
-            content={msg.content} 
-          />
+          <ChatMessage key={msg.id} role={msg.role} content={msg.content} />
         ))}
         {isLoading && (
-          <ChatMessage
-            role="assistant" 
-            content=""
-            isTyping={true}
-          />
+          <ChatMessage role="assistant" content="" isTyping={true} />
         )}
         <div ref={messagesEndRef} />
       </div>
