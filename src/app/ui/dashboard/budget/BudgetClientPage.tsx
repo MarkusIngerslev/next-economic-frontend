@@ -444,22 +444,7 @@ export default function BudgetClientPage() {
         </div>
       )}
 
-      {/* Tabel of indtægt */}
-      <SummaryTable
-        data={incomeForSelectedMonthForTable}
-        title={`Mine Udgifter - ${selectedDate.toLocaleString("da-DK", {
-          month: "long",
-          year: "numeric",
-        })}`}
-        onEditRow={handleOpenEditModal}
-        onDeleteRow={handleOpenDeleteModal}
-        onAddIncome={handleOpenAddIncomeModal}
-        currentPage={currentPage}
-        itemsPerPage={ITEMS_PER_PAGE}
-        totalItems={incomeForSelectedMonthForTable.length}
-        onPageChange={(page) => setCurrentPage(page)}
-      />
-
+      {/* Grafsektion */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
         {/* Cirkeldiagram */}
         <ReusablePieChart
@@ -502,7 +487,23 @@ export default function BudgetClientPage() {
         />
       </div>
 
-      {/*  */}
+      {/* Tabel over indtægter */}
+      <SummaryTable
+        data={incomeForSelectedMonthForTable}
+        title={`Mine Udgifter - ${selectedDate.toLocaleString("da-DK", {
+          month: "long",
+          year: "numeric",
+        })}`}
+        onEditRow={handleOpenEditModal}
+        onDeleteRow={handleOpenDeleteModal}
+        onAddIncome={handleOpenAddIncomeModal}
+        currentPage={currentPage}
+        itemsPerPage={ITEMS_PER_PAGE}
+        totalItems={incomeForSelectedMonthForTable.length}
+        onPageChange={(page) => setCurrentPage(page)}
+      />
+
+      {/* Section af forskellige modaler */}
       <AnimatePresence>
         {isEditModalOpen && selectedIncomeRecord && (
           <EditFinanceModal
