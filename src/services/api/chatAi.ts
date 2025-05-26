@@ -10,23 +10,26 @@ export interface AiResponse {
   reply: string; // Or whatever structure your backend returns, e.g., { message: "response" }
 }
 
-// Interface for an individual expense item in contextData
-export interface ContextExpenseItem {
-  category: string;
-  amount: number;
-  description: string;
+//Interface for the nested category object within a context item
+export interface ContextItemCategoryDetail {
+  id: string;
+  name: string;
+  type: "income" | "expense"; // Set to string if other types are possible in the future
 }
 
-// Interface for an individual income item in contextData
-export interface ContextIncomeItem {
-  source: string;
-  amount: number;
+// Unified interface for detailed income or expense items to be sent as AI context
+export interface DetailedContextItem {
+  id: string;
+  amount: string;
+  category: ContextItemCategoryDetail;
+  description: string;
+  date: string;
 }
 
 // Interface for the contextData object
 export interface AiContextData {
-  expenses?: ContextExpenseItem[];
-  income?: ContextIncomeItem[];
+  expenses?: DetailedContextItem[];
+  income?: DetailedContextItem[];
 }
 
 // Interface for the /ai/contextual-completion request body
@@ -34,8 +37,6 @@ export interface AiContextualCompletionRequest {
   message: string;
   contextData: AiContextData;
 }
-
-
 
 /**
  * Sends a message to the /ai/completion endpoint.
