@@ -12,6 +12,7 @@ import type {
   AiResponse,
   AiContextData,
   DetailedContextItem,
+  HistoryMessage,
 } from "@/services/api/chatAi";
 import { usePathname } from "next/navigation";
 import { getMyExpense, ExpenseRecord } from "@/services/api/expense";
@@ -24,16 +25,17 @@ interface ChatWindowProps {
 
 interface Message {
   id: string;
-  sender: "user" | "ai" | "system";
-  text: string;
+  role: "user" | "assistant" | "system";
+  content: string;
 }
 
 export default function ChatWindow({ isOpen, onClose }: ChatWindowProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "initial",
-      sender: "system",
-      text: "Hej! Hvordan kan jeg hjælpe dig i dag? Du kan spørge generelt, eller bede mig bruge kontekst fra siden.",
+      role: "system",
+      content:
+        "Hej! Hvordan kan jeg hjælpe dig i dag? Du kan spørge generelt, eller bede mig bruge kontekst fra siden.",
     },
   ]);
   const [input, setInput] = useState("");
@@ -67,9 +69,18 @@ export default function ChatWindow({ isOpen, onClose }: ChatWindowProps) {
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      sender: "user",
-      text: input,
+      role: "user",
+      content: input,
     };
+
+    // Prepare history: Filter out system messages and map to HistoryMessage format
+    const conversationHistory: HistoryMessage[] = messages
+      .filter((msg) => msg.role === "user" || msg.role === "assistant")
+      .map((msg) => ({
+        role: msg.role as "user" | "assistant",
+        content: msg.content,
+      }));
+
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setIsLoading(true);
@@ -86,8 +97,8 @@ export default function ChatWindow({ isOpen, onClose }: ChatWindowProps) {
             ...prev,
             {
               id: "context-info-expense",
-              sender: "system",
-              text: `Bruger ${expenses.length} udgiftsposter som kontekst.`,
+              role: "system",
+              content: `Bruger ${expenses.length} udgiftsposter som kontekst.`,
             },
           ]);
         } else if (pathname.includes("/dashboard/budget")) {
@@ -98,8 +109,8 @@ export default function ChatWindow({ isOpen, onClose }: ChatWindowProps) {
             ...prev,
             {
               id: "context-info-income",
-              sender: "system",
-              text: `Bruger ${income.length} indkomstposter som kontekst.`,
+              role: "system",
+              content: `Bruger ${income.length} indkomstposter som kontekst.`,
             },
           ]);
         } else {
@@ -107,21 +118,30 @@ export default function ChatWindow({ isOpen, onClose }: ChatWindowProps) {
             ...prev,
             {
               id: "context-info-none",
-              sender: "system",
-              text: "Ingen specifik sidekontekst (udgifter/indtægter) fundet. Stiller generelt spørgsmål.",
+              role: "system",
+              content:
+                "Ingen specifik sidekontekst (udgifter/indtægter) fundet. Stiller generelt spørgsmål.",
             },
           ]);
         }
         aiReply = await getAiContextualCompletion(
-          userMessage.text,
-          contextData
+          userMessage.content, // Send current user message text
+          contextData,
+          conversationHistory // Send the prepared history
         );
       } else {
-        aiReply = await getAiCompletion(userMessage.text);
+        aiReply = await getAiCompletion(
+          userMessage.content, // Send current user message text
+          conversationHistory // Send the prepared history
+        );
       }
       setMessages((prev) => [
         ...prev,
-        { id: (Date.now() + 1).toString(), sender: "ai", text: aiReply.reply },
+        {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: aiReply.reply,
+        },
       ]);
     } catch (error) {
       console.error("Error sending message to AI:", error);
@@ -129,8 +149,8 @@ export default function ChatWindow({ isOpen, onClose }: ChatWindowProps) {
         ...prev,
         {
           id: (Date.now() + 1).toString(),
-          sender: "system",
-          text: "Beklager, der opstod en fejl. Prøv igen.",
+          role: "system",
+          content: "Beklager, der opstod en fejl. Prøv igen.",
         },
       ]);
     } finally {
@@ -154,9 +174,19 @@ export default function ChatWindow({ isOpen, onClose }: ChatWindowProps) {
       </div>
       <div className="flex-grow p-3 overflow-y-auto space-y-2 bg-gray-800">
         {messages.map((msg) => (
-          <ChatMessage key={msg.id} sender={msg.sender} text={msg.text} />
+          <ChatMessage
+            key={msg.id}
+            role={msg.role} 
+            content={msg.content} 
+          />
         ))}
-        {isLoading && <ChatMessage sender="ai" text="" isTyping={true} />}
+        {isLoading && (
+          <ChatMessage
+            role="assistant" 
+            content=""
+            isTyping={true}
+          />
+        )}
         <div ref={messagesEndRef} />
       </div>
       <div className="p-2 border-t border-gray-700">

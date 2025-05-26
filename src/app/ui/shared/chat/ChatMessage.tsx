@@ -1,25 +1,25 @@
 "use client";
 
 interface ChatMessageProps {
-  sender: "user" | "ai" | "system";
-  text: string;
+  role: "user" | "assistant" | "system";
+  content: string;
   isTyping?: boolean;
 }
 
 export default function ChatMessage({
-  sender,
-  text,
+  role,
+  content,
   isTyping,
 }: ChatMessageProps) {
   const bgColor =
-    sender === "user"
+    role === "user"
       ? "bg-sky-500 text-white"
-      : sender === "ai"
+      : role === "assistant"
       ? "bg-gray-600 text-gray-200"
       : "bg-yellow-500 text-gray-900";
-  const alignment = sender === "user" ? "self-end" : "self-start";
+  const alignment = role === "user" ? "self-end" : "self-start";
 
-  if (isTyping && sender === "ai") {
+  if (isTyping && role === "assistant") {
     return (
       <div
         className={`p-2 rounded-lg max-w-xs md:max-w-md mb-2 ${alignment} ${bgColor}`}
@@ -38,7 +38,7 @@ export default function ChatMessage({
     <div
       className={`p-3 rounded-lg max-w-xs md:max-w-md mb-2 shadow ${alignment} ${bgColor}`}
     >
-      <p className="text-sm whitespace-pre-wrap">{text}</p>
+      <p className="text-sm whitespace-pre-wrap">{content}</p>
     </div>
   );
 }

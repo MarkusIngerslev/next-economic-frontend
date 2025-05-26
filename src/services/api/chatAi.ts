@@ -1,8 +1,14 @@
 import { apiClient } from "./base";
 
+export interface HistoryMessage {
+  role: "user" | "assistant" | "system";
+  content: string;
+}
+
 // Interface for the /ai/completion request body
 export interface AiCompletionRequest {
   message: string;
+  history?: HistoryMessage[]; // Optional history of messages for context
 }
 
 // Expected response type from the AI (assuming it's a string)
@@ -36,15 +42,20 @@ export interface AiContextData {
 export interface AiContextualCompletionRequest {
   message: string;
   contextData: AiContextData;
+  history?: HistoryMessage[]; // Optional history of messages for context
 }
 
 /**
  * Sends a message to the /ai/completion endpoint.
  * @param message The message to send to the AI.
+ * @param history Optional array of previous messages in the conversation.
  * @returns The AI's response.
  */
-export async function getAiCompletion(message: string): Promise<AiResponse> {
-  const payload: AiCompletionRequest = { message };
+export async function getAiCompletion(
+  message: string,
+  history?: HistoryMessage[]
+): Promise<AiResponse> {
+  const payload: AiCompletionRequest = { message, history };
   try {
     const response = await apiClient.request<AiResponse>("/ai/completion", {
       method: "POST",
@@ -64,13 +75,19 @@ export async function getAiCompletion(message: string): Promise<AiResponse> {
  * Sends a message and context data to the /ai/contextual-completion endpoint.
  * @param message The message to send to the AI.
  * @param contextData The contextual data (income/expenses) for the AI.
+ * @param history Optional array of previous messages in the conversation.
  * @returns The AI's response.
  */
 export async function getAiContextualCompletion(
   message: string,
-  contextData: AiContextData
+  contextData: AiContextData,
+  history?: HistoryMessage[]
 ): Promise<AiResponse> {
-  const payload: AiContextualCompletionRequest = { message, contextData };
+  const payload: AiContextualCompletionRequest = {
+    message,
+    contextData,
+    history,
+  };
   try {
     const response = await apiClient.request<AiResponse>(
       "/ai/contextual-completion",
