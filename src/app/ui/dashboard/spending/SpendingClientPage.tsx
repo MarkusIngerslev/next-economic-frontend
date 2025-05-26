@@ -105,8 +105,8 @@ export default function SpendingClientPage() {
         getAllCategories(),
       ]);
 
-      // Kunstig forsinkelse på 10 sekunder
-      await new Promise((resolve) => setTimeout(resolve, 10000));
+      // Kunstig forsinkelse på 5 sekunder
+      // await new Promise((resolve) => setTimeout(resolve, 5000));
 
       setExpenseData(expense);
       setAllCategories(categories);
