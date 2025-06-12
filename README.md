@@ -4,7 +4,7 @@
 
 In this repository, you will find the frontend part of the Economic Dashboard. The frontend is build with Nextjs & TailwindCSS. The frontend is responsible for displaying the data from the backend and also for the user interaction. The frontend is connected to the backend through the API.
 
-The backend part of the Economic Dashboard can be found in the following repository: [Economic Dashboard Backend](https://github.com/MarkusIngerslev/nest-economic-backend)
+The backend part of the Economic Dashboard can be found in the following repository: [Final Project backend - ØkoSmart](https://github.com/MarkusIngerslev/nest-economic-backend)
 
 ## Installation
 
